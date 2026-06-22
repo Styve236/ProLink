@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8">
+    <title>Dashboard Admin - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link th:href="@{/img/favicon.ico}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-xxl bg-white p-0">
+
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Chargement...</span>
+        </div>
+    </div>
+
+    <!-- Navbar Admin -->
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow sticky-top p-0">
+        <a th:href="@{/admin/dashboard}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink <span class="text-white fs-6 fw-normal ms-2">Admin</span></h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/admin/dashboard}" class="nav-item nav-link active text-white">
+                    <i class="fa fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a th:href="@{/admin/users}" class="nav-item nav-link text-white-50">
+                    <i class="fa fa-users me-1"></i>Utilisateurs
+                </a>
+                <a th:href="@{/admin/offres}" class="nav-item nav-link text-white-50">
+                    <i class="fa fa-briefcase me-1"></i>Offres
+                </a>
+                <!-- CORRECT — formulaire POST avec token CSRF -->
+                <form th:action="@{/auth/deconnexion}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-link nav-link text-danger p-0">
+                        <i class="fa fa-sign-out-alt me-1"></i>Déconnexion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Administration ProLink</h1>
+            <p class="text-white fs-5">Vue d'ensemble de la plateforme</p>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5">
+        <div class="container">
+
+            <!-- Messages flash -->
+            <div class="alert alert-success alert-dismissible fade show" th:if="${succes}" role="alert">
+                <i class="fa fa-check-circle me-2"></i><span th:text="${succes}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" th:if="${erreur}" role="alert">
+                <i class="fa fa-exclamation-circle me-2"></i><span th:text="${erreur}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Statistiques globales -->
+            <div class="row g-4 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-md-2 col-sm-4">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-users fa-2x text-primary mb-2"></i>
+                            <h3 class="fw-bold" th:text="${stats.totalUtilisateurs}">0</h3>
+                            <p class="text-muted small mb-0">Utilisateurs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-graduation-cap fa-2x text-info mb-2"></i>
+                            <h3 class="fw-bold" th:text="${stats.etudiants}">0</h3>
+                            <p class="text-muted small mb-0">Étudiants</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-laptop-code fa-2x text-success mb-2"></i>
+                            <h3 class="fw-bold" th:text="${stats.freelances}">0</h3>
+                            <p class="text-muted small mb-0">Freelances</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-building fa-2x text-warning mb-2"></i>
+                            <h3 class="fw-bold" th:text="${stats.recruteurs}">0</h3>
+                            <p class="text-muted small mb-0">Recruteurs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-clock fa-2x text-danger mb-2"></i>
+                            <h3 class="fw-bold" th:text="${stats.enAttente}">0</h3>
+                            <p class="text-muted small mb-0">En attente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-file-alt fa-2x text-secondary mb-2"></i>
+                            <h3 class="fw-bold" th:text="${stats.documentsEnAttente}">0</h3>
+                            <p class="text-muted small mb-0">Docs à valider</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="row g-4 wow fadeInUp" data-wow-delay="0.1s">
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-bolt text-primary me-2"></i>Actions rapides</h5>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column gap-3">
+                            <a th:href="@{/admin/users}" class="btn btn-primary">
+                                <i class="fa fa-users me-2"></i>Gérer les utilisateurs
+                            </a>
+                            <a th:href="@{/admin/users/ETUDIANT}" class="btn btn-outline-info">
+                                <i class="fa fa-graduation-cap me-2"></i>Étudiants en attente
+                                <span th:if="${stats.enAttente > 0}"
+                                      class="badge bg-danger ms-2" th:text="${stats.enAttente}"></span>
+                            </a>
+                            <a th:href="@{/admin/offres}" class="btn btn-outline-primary">
+                                <i class="fa fa-briefcase me-2"></i>Valider les offres
+                            </a>
+                            <a th:href="@{/admin/documents}" class="btn btn-outline-secondary">
+                                <i class="fa fa-file-alt me-2"></i>Documents à valider
+                                <span th:if="${stats.documentsEnAttente > 0}"
+                                      class="badge bg-danger ms-2" th:text="${stats.documentsEnAttente}"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-chart-bar text-primary me-2"></i>Répartition des utilisateurs</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3 text-center">
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="display-6 text-info fw-bold" th:text="${stats.etudiants}">0</div>
+                                        <div class="small text-muted">Étudiants</div>
+                                        <div class="progress mt-2" style="height:6px;">
+                                            <div class="progress-bar bg-info"
+                                                 th:style="'width:' + (${stats.totalUtilisateurs} > 0 ? (${stats.etudiants} * 100 / ${stats.totalUtilisateurs}) : 0) + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="display-6 text-success fw-bold" th:text="${stats.freelances}">0</div>
+                                        <div class="small text-muted">Freelances</div>
+                                        <div class="progress mt-2" style="height:6px;">
+                                            <div class="progress-bar bg-success"
+                                                 th:style="'width:' + (${stats.totalUtilisateurs} > 0 ? (${stats.freelances} * 100 / ${stats.totalUtilisateurs}) : 0) + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="display-6 text-warning fw-bold" th:text="${stats.recruteurs}">0</div>
+                                        <div class="small text-muted">Recruteurs</div>
+                                        <div class="progress mt-2" style="height:6px;">
+                                            <div class="progress-bar bg-warning"
+                                                 th:style="'width:' + (${stats.totalUtilisateurs} > 0 ? (${stats.recruteurs} * 100 / ${stats.totalUtilisateurs}) : 0) + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="alert alert-warning mb-0" th:if="${stats.enAttente > 0}">
+                                <i class="fa fa-exclamation-triangle me-2"></i>
+                                <strong th:text="${stats.enAttente}">0</strong> compte(s) en attente de validation.
+                                <a th:href="@{/admin/users}" class="alert-link ms-2">Valider maintenant →</a>
+                            </div>
+                            <div class="alert alert-success mb-0" th:if="${stats.enAttente == 0}">
+                                <i class="fa fa-check-circle me-2"></i>Aucun compte en attente de validation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5 text-center">
+            &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a> — Interface d'administration
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

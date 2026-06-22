@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8">
+  <title>Gestion Utilisateurs - Admin ProLink</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+  <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+  <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="container-xxl bg-white p-0">
+
+  <!-- Spinner -->
+  <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="sr-only">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Navbar Admin -->
+  <nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow sticky-top p-0">
+    <a th:href="@{/admin/dashboard}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+      <h1 class="m-0 text-primary">ProLink <span class="text-white fs-6 fw-normal ms-2">Admin</span></h1>
+    </a>
+    <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <div class="navbar-nav ms-auto p-4 p-lg-0">
+        <a th:href="@{/admin/dashboard}" class="nav-item nav-link text-white-50"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+        <a th:href="@{/admin/users}" class="nav-item nav-link active text-white"><i class="fa fa-users me-1"></i>Utilisateurs</a>
+        <a th:href="@{/admin/documents}" class="nav-item nav-link text-white-50"><i class="fa fa-file me-1"></i>Documents</a>
+        <a th:href="@{/admin/offres/pending}" class="nav-item nav-link text-white-50"><i class="fa fa-briefcase me-1"></i>Offres</a>
+        <form th:action="@{/auth/deconnexion}" method="post" class="d-inline">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="nav-item nav-link text-danger border-0 bg-transparent"><i class="fa fa-sign-out-alt me-1"></i>Déconnexion</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <div class="container-xxl py-5 bg-dark page-header mb-5">
+    <div class="container my-5 pt-5 pb-4">
+      <h1 class="display-3 text-white mb-3 animated slideInDown">Gestion des utilisateurs</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}" class="text-white">Dashboard</a></li>
+          <li class="breadcrumb-item text-white active">Utilisateurs</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container-xxl py-5">
+    <div class="container">
+
+      <!-- Messages flash -->
+      <div class="alert alert-success alert-dismissible fade show" th:if="${succes}" role="alert">
+        <i class="fa fa-check-circle me-2"></i><span th:text="${succes}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      <div class="alert alert-danger alert-dismissible fade show" th:if="${erreur}" role="alert">
+        <i class="fa fa-exclamation-circle me-2"></i><span th:text="${erreur}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Filtres par rôle -->
+      <div class="mb-4 d-flex gap-2 flex-wrap">
+        <a th:href="@{/admin/users}" class="btn btn-outline-secondary btn-sm">Tous</a>
+        <a th:href="@{/admin/users/ETUDIANT}" class="btn btn-outline-primary btn-sm">Étudiants</a>
+        <a th:href="@{/admin/users/FREELANCE}" class="btn btn-outline-success btn-sm">Freelances</a>
+        <a th:href="@{/admin/users/RECRUTEUR}" class="btn btn-outline-warning btn-sm">Recruteurs</a>
+      </div>
+
+      <!-- Tableau utilisateurs -->
+      <div class="card border-0 shadow">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0"><i class="fa fa-users text-primary me-2"></i>
+            Liste des utilisateurs
+            <span th:if="${roleFiltre}" class="badge bg-primary ms-2" th:text="${roleFiltre}"></span>
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Trust Score</th>
+                <th>Inscription</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.nomComplet}"></td>
+                <td th:text="${user.email}"></td>
+                <td>
+                                    <span class="badge"
+                                          th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : (${user.role.name() == 'RECRUTEUR'} ? 'bg-warning text-dark' : (${user.role.name() == 'FREELANCE'} ? 'bg-success' : 'bg-primary'))"
+                                          th:text="${user.role}"></span>
+                </td>
+                <td>
+                                    <span class="badge"
+                                          th:classappend="${user.statut.name() == 'ACTIF'} ? 'bg-success' : (${user.statut.name() == 'EN_ATTENTE'} ? 'bg-warning text-dark' : 'bg-danger')"
+                                          th:text="${user.statut}"></span>
+                </td>
+                <td>
+                  <div class="progress" style="height: 6px; width: 80px;">
+                    <div class="progress-bar bg-primary" th:style="'width:' + ${user.trustScore} + '%'"></div>
+                  </div>
+                  <small th:text="${user.trustScore} + '/100'"></small>
+                </td>
+                <td th:text="${#temporals.format(user.dateInscription, 'dd/MM/yyyy')}"></td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <!-- Valider -->
+                    <a th:href="@{/admin/valider/{id}(id=${user.id})}"
+                       class="btn btn-sm btn-outline-primary" title="Voir / Valider">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    <!-- Réactiver -->
+                    <form th:if="${user.statut.name() != 'ACTIF' and user.role.name() != 'ADMIN'}"
+                          th:action="@{/admin/reactiver/{id}(id=${user.id})}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                      <button type="submit" class="btn btn-sm btn-outline-success" title="Réactiver">
+                        <i class="fa fa-check"></i>
+                      </button>
+                    </form>
+                    <!-- Bannir -->
+                    <form th:if="${user.statut.name() != 'SUSPENDU' and user.role.name() != 'ADMIN'}"
+                          th:action="@{/admin/bannir/{id}(id=${user.id})}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                      <input type="hidden" name="raison" value="Suspension administrative"/>
+                      <button type="submit" class="btn btn-sm btn-outline-warning" title="Suspendre"
+                              onclick="return confirm('Suspendre cet utilisateur ?')">
+                        <i class="fa fa-ban"></i>
+                      </button>
+                    </form>
+                    <!-- Supprimer -->
+                    <form th:if="${user.role.name() != 'ADMIN'}"
+                          th:action="@{/admin/supprimer/{id}(id=${user.id})}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer"
+                              onclick="return confirm('Supprimer définitivement cet utilisateur ?')">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="8" class="text-center text-muted py-4">Aucun utilisateur trouvé.</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+    <div class="container py-5 text-center">
+      &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a> Admin — Tous droits réservés.
+    </div>
+  </div>
+
+  <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

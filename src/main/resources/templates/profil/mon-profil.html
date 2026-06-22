@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Profil - ProLink</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+<!-- Header JobEntry -->
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+    <div class="container py-5">
+        <h1 class="display-4 text-white"
+            th:text="${utilisateur.nomComplet}">
+            Nom Complet
+        </h1>
+
+        <p class="text-white fs-5">
+            Espace personnel ProLink
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+
+    <div class="row g-4">
+
+        <!-- Profil -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow">
+
+                <div class="card-body text-center">
+
+                    <img th:if="${utilisateur.photoUrl != null}"
+                         th:src="${utilisateur.photoUrl}"
+                         class="rounded-circle mb-3"
+                         width="180">
+
+                    <img th:if="${utilisateur.photoUrl == null}"
+                         th:src="@{/img/user.jpg}"
+                         class="rounded-circle mb-3"
+                         width="180">
+
+                    <h3 th:text="${utilisateur.nomComplet}">
+                        Nom utilisateur
+                    </h3>
+
+                    <p class="text-muted"
+                       th:text="${utilisateur.role}">
+                        ETUDIANT
+                    </p>
+
+                    <span class="badge bg-success"
+                          th:text="${utilisateur.statut}">
+                        ACTIF
+                    </span>
+
+                    <hr>
+
+                    <a th:href="@{/profil/modifier}"
+                       class="btn btn-primary w-100">
+
+                        <i class="fa fa-user-edit"></i>
+                        Modifier le profil
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Informations -->
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow">
+
+                <div class="card-header bg-white">
+                    <h4>
+                        <i class="fa fa-user"></i>
+                        Informations générales
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Email</strong>
+                        </div>
+
+                        <div class="col-md-8"
+                             th:text="${utilisateur.email}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Téléphone</strong>
+                        </div>
+
+                        <div class="col-md-8"
+                             th:text="${utilisateur.telephone}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Ville</strong>
+                        </div>
+
+                        <div class="col-md-8"
+                             th:text="${utilisateur.ville}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Date d'inscription</strong>
+                        </div>
+
+                        <div class="col-md-8"
+                             th:text="${#temporals.format(utilisateur.dateInscription,'dd/MM/yyyy')}">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Statistiques -->
+
+    <div class="row g-4 mt-4">
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center">
+                <div class="card-body">
+                    <i class="fa fa-bell fa-2x text-primary mb-3"></i>
+                    <h2 th:text="${notifNonLues}">0</h2>
+                    <p>Notifications</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center">
+                <div class="card-body">
+                    <i class="fa fa-file fa-2x text-success mb-3"></i>
+                    <h2 th:text="${utilisateur.documents.size()}">0</h2>
+                    <p>Documents</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center">
+                <div class="card-body">
+                    <i class="fa fa-envelope fa-2x text-warning mb-3"></i>
+                    <h2 th:text="${utilisateur.messagesRecus.size()}">0</h2>
+                    <p>Messages</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center">
+                <div class="card-body">
+                    <i class="fa fa-shield-alt fa-2x text-danger mb-3"></i>
+                    <h2 th:text="${utilisateur.trustScore}">0</h2>
+                    <p>Trust Score</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8">
+    <title>Modifier mon profil - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link th:href="@{/img/favicon.ico}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-xxl bg-white p-0">
+
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Chargement...</span>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
+                <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
+                <a th:href="@{/profil/mon-profil}" class="nav-item nav-link active">Mon profil</a>
+            </div>
+            <div class="d-none d-lg-block">
+                <a th:href="@{/profil/dashboard}" class="btn btn-primary rounded-0 py-4 px-lg-5">
+                    Dashboard<i class="fa fa-arrow-right ms-3"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Modifier mon profil</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-uppercase">
+                    <li class="breadcrumb-item"><a th:href="@{/}" class="text-white">Accueil</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/profil/mon-profil}" class="text-white">Mon profil</a></li>
+                    <li class="breadcrumb-item text-white active" aria-current="page">Modifier</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5">
+        <div class="container">
+
+            <!-- Messages flash -->
+            <div class="alert alert-success alert-dismissible fade show" th:if="${succes}" role="alert">
+                <i class="fa fa-check-circle me-2"></i><span th:text="${succes}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" th:if="${erreur}" role="alert">
+                <i class="fa fa-exclamation-circle me-2"></i><span th:text="${erreur}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Photo de profil -->
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-body text-center p-4">
+                            <img th:if="${utilisateur.photoUrl != null}"
+                                 th:src="${utilisateur.photoUrl}"
+                                 class="rounded-circle mb-3" width="120" height="120" style="object-fit:cover;">
+                            <img th:if="${utilisateur.photoUrl == null}"
+                                 th:src="@{/img/testimonial-1.jpg}"
+                                 class="rounded-circle mb-3" width="120" height="120" style="object-fit:cover;">
+
+                            <h5 th:text="${utilisateur.nomComplet}">Nom</h5>
+                            <p class="text-muted" th:text="${utilisateur.role}">Rôle</p>
+
+                            <hr>
+                            <h6 class="mb-3">Changer la photo</h6>
+                            <form th:action="@{/profil/photo}" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <input type="file" name="photo" class="form-control" accept="image/*">
+                                </div>
+                                <button type="submit" class="btn btn-outline-primary w-100">
+                                    <i class="fa fa-upload me-2"></i>Envoyer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations principales -->
+                <div class="col-lg-8">
+
+                    <!-- Infos communes -->
+                    <div class="card border-0 shadow mb-4 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-user text-primary me-2"></i>Informations générales</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form th:action="@{/profil/modifier/infos}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Prénom</label>
+                                        <input type="text" name="prenom" class="form-control"
+                                               th:value="${utilisateur.prenom}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Nom</label>
+                                        <input type="text" name="nom" class="form-control"
+                                               th:value="${utilisateur.nom}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Téléphone</label>
+                                        <input type="tel" name="telephone" class="form-control"
+                                               th:value="${utilisateur.telephone}" placeholder="+221 77 000 00 00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Ville</label>
+                                        <input type="text" name="ville" class="form-control"
+                                               th:value="${utilisateur.ville}" placeholder="Ex: Dakar">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-save me-2"></i>Enregistrer
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Infos spécifiques ÉTUDIANT -->
+                    <div th:if="${utilisateur.role.name() == 'ETUDIANT'}"
+                         class="card border-0 shadow mb-4 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-graduation-cap text-primary me-2"></i>Profil Étudiant</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form th:action="@{/profil/modifier/etudiant}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Université</label>
+                                        <input type="text" name="universite" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Etudiant) ? utilisateur.universite : ''}"
+                                               placeholder="Ex: UCAD, ESP...">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Filière</label>
+                                        <input type="text" name="filiere" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Etudiant) ? utilisateur.filiere : ''}"
+                                               placeholder="Ex: Informatique, Finance...">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Niveau d'étude</label>
+                                        <select name="niveauEtude" class="form-select">
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="Licence 1">Licence 1</option>
+                                            <option value="Licence 2">Licence 2</option>
+                                            <option value="Licence 3">Licence 3</option>
+                                            <option value="Master 1">Master 1</option>
+                                            <option value="Master 2">Master 2</option>
+                                            <option value="Doctorat">Doctorat</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Disponibilité</label>
+                                        <input type="text" name="disponibilite" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Etudiant) ? utilisateur.disponibilite : ''}"
+                                               placeholder="Ex: Immédiate, Juillet 2025...">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Compétences</label>
+                                        <textarea name="competences" class="form-control" rows="3"
+                                                  placeholder="Ex: Java, Python, Excel, Analyse de données..."
+                                                  th:text="${utilisateur instanceof T(prolink.com.prolink.entities.Etudiant) ? utilisateur.competences : ''}"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-save me-2"></i>Enregistrer
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Infos spécifiques FREELANCE -->
+                    <div th:if="${utilisateur.role.name() == 'FREELANCE'}"
+                         class="card border-0 shadow mb-4 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-laptop-code text-primary me-2"></i>Profil Freelance</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form th:action="@{/profil/modifier/freelance}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Spécialité</label>
+                                        <input type="text" name="specialite" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Freelance) ? utilisateur.specialite : ''}"
+                                               placeholder="Ex: Développement Web, Design UI/UX...">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">TJM (FCFA/jour)</label>
+                                        <input type="text" name="tjm" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Freelance) ? utilisateur.tjm : ''}"
+                                               placeholder="Ex: 50 000">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">URL Portfolio</label>
+                                        <input type="url" name="portfolioUrl" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Freelance) ? utilisateur.portfolioUrl : ''}"
+                                               placeholder="https://monportfolio.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Disponibilité</label>
+                                        <input type="text" name="disponibilite" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Freelance) ? utilisateur.disponibilite : ''}"
+                                               placeholder="Ex: Immédiate, 2 semaines...">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Compétences</label>
+                                        <textarea name="competences" class="form-control" rows="3"
+                                                  placeholder="Ex: React, Node.js, Figma, Docker..."
+                                                  th:text="${utilisateur instanceof T(prolink.com.prolink.entities.Freelance) ? utilisateur.competences : ''}"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-save me-2"></i>Enregistrer
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Infos spécifiques RECRUTEUR -->
+                    <div th:if="${utilisateur.role.name() == 'RECRUTEUR'}"
+                         class="card border-0 shadow mb-4 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-building text-primary me-2"></i>Profil Entreprise</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form th:action="@{/profil/modifier/recruteur}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Nom de l'entreprise</label>
+                                        <input type="text" name="nomEntreprise" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Recruteur) ? utilisateur.nomEntreprise : ''}"
+                                               placeholder="Ex: TechSenegal SA">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Secteur d'activité</label>
+                                        <input type="text" name="secteurActivite" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Recruteur) ? utilisateur.secteurActivite : ''}"
+                                               placeholder="Ex: Informatique, Finance, Santé...">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Site web</label>
+                                        <input type="url" name="siteWeb" class="form-control"
+                                               th:value="${utilisateur instanceof T(prolink.com.prolink.entities.Recruteur) ? utilisateur.siteWeb : ''}"
+                                               placeholder="https://monentreprise.com">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Description de l'entreprise</label>
+                                        <textarea name="descriptionEntreprise" class="form-control" rows="4"
+                                                  placeholder="Présentez votre entreprise, sa mission, ses valeurs..."
+                                                  th:text="${utilisateur instanceof T(prolink.com.prolink.entities.Recruteur) ? utilisateur.descriptionEntreprise : ''}"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-save me-2"></i>Enregistrer
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Retour profil -->
+            <div class="text-center mt-3 wow fadeInUp" data-wow-delay="0.1s">
+                <a th:href="@{/profil/mon-profil}" class="btn btn-outline-secondary">
+                    <i class="fa fa-arrow-left me-2"></i>Retour à mon profil
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5 text-center">
+            &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a>, Tous droits réservés.
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

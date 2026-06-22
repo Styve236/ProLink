@@ -1,0 +1,12 @@
+package prolink.com.prolink.enums;
+
+public enum TypeNotification {
+    CANDIDATURE_RECUE,
+    CANDIDATURE_ACCEPTEE,
+    CANDIDATURE_REFUSEE,
+    OFFRE_APPROUVEE,
+    DOCUMENT_VALIDE,
+    DOCUMENT_REJETE,
+    TRUST_SCORE_MIS_A_JOUR,
+    DEMANDE_CONNEXION
+}

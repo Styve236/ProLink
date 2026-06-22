@@ -1,0 +1,123 @@
+:root {
+    --slack-purple: #4a154b;
+    --slack-purple-gradient: linear-gradient(135deg, #4a154b 0%, #2b0c2c 100%);
+    --slack-yellow: #ecb22e;
+    --slack-blue: #4285f4;
+    --light-bg: #f0f4f9;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+}
+/* Tout en haut de ton fichier src/main/resources/static/css/dashboard.css */
+:root {
+    /* Tes autres variables existantes (comme --slack-purple, etc.) */
+
+    --slack-cyan: #007a5a; /* C'est le bleu-vert/cyan caractéristique de la charte Slack */
+
+    /* Si tu as aussi besoin d'une variante plus claire pour les badges ou survol : */
+    --slack-cyan-hover: #148567;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+}
+
+/* Navbar */
+.dash-navbar {
+    background: var(--white);
+    padding: 15px 0;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.dash-nav-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.dash-logo { font-size: 22px; font-weight: 900; color: var(--slack-purple); }
+.dash-logo span { color: var(--slack-yellow); }
+.dash-nav-links { display: flex; list-style: none; gap: 25px; margin: 0; padding: 0; }
+.dash-nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 600; font-size: 14px; }
+.dash-nav-links a.active { color: var(--slack-purple); border-bottom: 2px solid var(--slack-purple); padding-bottom: 5px; }
+.dash-nav-profile { display: flex; align-items: center; gap: 20px; }
+.user-avatar { width: 35px; height: 35px; background: var(--slack-purple); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; }
+
+/* Welcome Banner matching design */
+.welcome-banner {
+    background: var(--slack-purple-gradient);
+    color: var(--white);
+    padding: 50px 0;
+}
+.banner-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 40px;
+    align-items: center;
+}
+.welcome-text h1 { font-size: 36px; font-weight: 900; margin-bottom: 10px; }
+.welcome-text p { font-size: 16px; opacity: 0.9; margin-bottom: 25px; }
+
+/* Barre de recherche interne */
+.search-box { display: flex; max-width: 500px; background: var(--white); border-radius: 30px; padding: 5px 15px; }
+.search-box input { border: none; width: 100%; padding: 10px; outline: none; font-size: 14px; color: var(--text-dark); }
+.search-box button { border: none; background: transparent; cursor: pointer; font-size: 16px; }
+
+/* Widget Raccourcis */
+.quick-access-widget { background: var(--white); color: var(--text-dark); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.quick-access-widget h3 { font-size: 15px; margin-bottom: 15px; color: var(--slack-purple); font-weight: 700; }
+.quick-access-widget ul { list-style: none; padding: 0; margin: 0; }
+.quick-access-widget li { margin-bottom: 10px; }
+.quick-access-widget a { text-decoration: none; color: var(--text-dark); font-size: 13px; font-weight: 600; display: block; transition: 0.2s; }
+.quick-access-widget a:hover { color: var(--slack-blue); }
+
+/* Cartes intermédiaires */
+.action-cards-container { width: 90%; max-width: 1200px; margin: -25px auto 40px auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.action-card { border-radius: 10px; color: white; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.btn-blue-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+.btn-cyan-gradient { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); }
+.btn-navy-gradient { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
+.action-icon { font-size: 28px; }
+.action-info h3 { font-size: 15px; margin: 0; font-weight: 700; }
+.action-info p { font-size: 12px; opacity: 0.8; margin: 3px 0 0 0; }
+
+/* Grille de cartes pour les offres (Grid structure de la maquette) */
+.main-content { width: 90%; max-width: 1200px; margin: 0 auto 50px auto; }
+.main-content h2 { font-size: 22px; font-weight: 800; margin-bottom: 25px; text-align: center; }
+
+.jobs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+.job-card-v2 { background: var(--white); border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; }
+.job-card-v2:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+.card-image-placeholder { height: 140px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; font-weight: 700; border-bottom: 1px solid #edf2f7; }
+
+.card-body { padding: 20px; flex-grow: 1; }
+.company-name { font-size: 12px; color: var(--slack-blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-title { font-size: 16px; font-weight: 700; margin: 8px 0; color: var(--text-dark); }
+.card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
+.card-footer-v2 { padding: 15px 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+.card-salary { font-size: 13px; font-weight: 600; }
+.card-salary strong { color: #10b981; }
+.btn-postuler { background: var(--slack-purple); color: white; text-decoration: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 700; transition: 0.2s; }
+.btn-postuler:hover { background: #320e33; }
+
+/* Événements */
+.events-section { width: 90%; max-width: 1200px; margin: 0 auto 60px auto; border-top: 2px solid #e2e8f0; padding-top: 30px; }
+.events-section h2 { font-size: 20px; margin-bottom: 20px; font-weight: 800; }
+.events-list { display: flex; flex-direction: column; gap: 15px; }
+.event-item { background: var(--white); border-left: 4px solid var(--slack-yellow); padding: 15px 20px; border-radius: 0 8px 8px 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+.event-title { font-weight: 600; font-size: 14px; }
+.event-date { font-size: 13px; color: var(--text-muted); }
+
+.no-data { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }

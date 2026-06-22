@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8">
+    <title>ProLink - Trouvez votre prochaine opportunité</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="description" content="ProLink, la plateforme de mise en relation professionnelle. Trouvez des offres d'emploi et de freelance.">
+
+    <link th:href="@{/img/favicon.ico}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-xxl bg-white p-0">
+
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/}" class="nav-item nav-link active">Accueil</a>
+                <a th:href="@{/a-propos}" class="nav-item nav-link">À propos</a>
+                <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
+                <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
+            </div>
+            <div sec:authorize="isAuthenticated()" class="d-none d-lg-block">
+                <a th:href="@{/profil/dashboard}" class="btn btn-primary rounded-0 py-4 px-lg-5">
+                    Mon tableau de bord<i class="fa fa-arrow-right ms-3"></i>
+                </a>
+            </div>
+            <div sec:authorize="!isAuthenticated()" class="d-none d-lg-block">
+                <a th:href="@{/auth/connexion}" class="btn btn-primary rounded-0 py-4 px-lg-5">
+                    Connexion<i class="fa fa-arrow-right ms-3"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero + recherche -->
+    <div class="container-xxl py-5 bg-dark mb-5 hero-header">
+        <div class="container my-5 py-5">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 text-center text-lg-start">
+                    <h1 class="display-3 text-white mb-4 animated slideInDown">Trouvez votre prochaine opportunité professionnelle</h1>
+                    <p class="text-white mb-4 pb-2">ProLink connecte étudiants, freelances et recruteurs autour d'offres réelles.</p>
+
+                    <form th:action="@{/offres}" method="get" class="position-relative w-100 animated slideInDown">
+                        <input type="text" name="recherche" class="form-control border-0 rounded-pill w-100 py-3 ps-4 pe-5"
+                               placeholder="Recherche d'emploi, mot-clé...">
+                        <button type="submit" class="btn btn-primary rounded-pill py-2 px-4 position-absolute top-0 end-0 me-2"
+                                style="margin-top: 7px;">Rechercher</button>
+                    </form>
+                </div>
+                <div class="col-lg-6 text-center text-lg-end overflow-hidden">
+                    <img class="img-fluid" th:src="@{/img/hero-img.png}" alt="" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dernières offres -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Dernières offres publiées</h1>
+
+            <div class="wow fadeInUp" data-wow-delay="0.3s">
+                <div class="job-item p-4 mb-4" th:each="offre : ${dernieresOffres}">
+                    <div class="row g-4">
+                        <div class="col-sm-12 col-md-8 d-flex align-items-center">
+                            <img class="flex-shrink-0 img-fluid border rounded" th:src="@{/img/com-logo-1.jpg}" alt="" style="width: 80px; height: 80px;">
+                            <div class="text-start ps-4">
+                                <h5 class="mb-3">
+                                    <a th:href="@{/offres/{id}(id=${offre.id})}" th:text="${offre.titre}" class="text-dark text-decoration-none">Titre</a>
+                                </h5>
+                                <span class="text-truncate me-3"><i class="fa fa-map-marker-alt text-primary me-2"></i><span th:text="${offre.lieu}">Lieu</span></span>
+                                <span class="text-truncate me-3"><i class="far fa-clock text-primary me-2"></i><span th:text="${offre.typeContrat}">Type</span></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center">
+                            <a th:href="@{/offres/{id}(id=${offre.id})}" class="btn btn-primary">Voir l'offre</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(dernieresOffres)}" class="text-center py-4">
+                    <p class="text-muted">Aucune offre publiée pour le moment.</p>
+                </div>
+
+                <div class="text-center">
+                    <a th:href="@{/offres}" class="btn btn-primary py-3 px-5">Voir toutes les offres</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA inscription -->
+    <div class="container-xxl py-5 bg-dark my-5">
+        <div class="container py-5 text-center">
+            <h1 class="text-white mb-4">Rejoignez ProLink dès aujourd'hui</h1>
+            <p class="text-white mb-4">Créez votre profil, postulez aux offres et connectez-vous avec des recruteurs.</p>
+            <a th:href="@{/auth/inscription}" class="btn btn-primary py-3 px-5">Créer un compte gratuitement</a>
+        </div>
+    </div>
+
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">ProLink</h5>
+                    <a class="btn btn-link text-white-50" th:href="@{/a-propos}">À propos</a>
+                    <a class="btn btn-link text-white-50" th:href="@{/contact}">Contact</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Liens rapides</h5>
+                    <a class="btn btn-link text-white-50" th:href="@{/offres}">Offres</a>
+                    <a class="btn btn-link text-white-50" th:href="@{/auth/inscription}">Créer un compte</a>
+                    <a class="btn btn-link text-white-50" th:href="@{/auth/connexion}">Connexion</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Contact</h5>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>contact@prolink.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Suivez-nous</h5>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        &copy; <a class="border-bottom" th:href="@{/}">ProLink</a>, Tous droits réservés.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

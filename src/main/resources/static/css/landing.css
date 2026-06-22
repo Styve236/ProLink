@@ -1,0 +1,97 @@
+:root {
+    --slack-purple: #4a154b;
+    --slack-yellow: #ecb22e;
+    --slack-blue: #4285f4;
+    --text-white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--slack-purple);
+    color: var(--text-white);
+    overflow-x: hidden;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+.nav-container {
+    width: 90%;
+    max-width: 1200px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.logo { font-size: 24px; font-weight: 900; }
+.logo span { color: var(--slack-yellow); }
+.nav-links { display: flex; list-style: none; gap: 30px; }
+.nav-links a { color: white; text-decoration: none; font-weight: 600; font-size: 14px; }
+.nav-auth { display: flex; align-items: center; gap: 20px; }
+.link-connexion { color: white; text-decoration: none; font-weight: 600; }
+.btn-primary-outline {
+    border: 1px solid white; padding: 10px 20px; border-radius: 4px;
+    color: white; text-decoration: none; font-weight: 700;
+}
+
+/* Hero Section */
+.hero-section {
+    display: flex;
+    justify-content: center;
+    padding: 60px 0;
+}
+.hero-container {
+    width: 90%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.hero-text h1 {
+    font-size: 48px;
+    line-height: 1.1;
+    font-weight: 900;
+    margin-bottom: 20px;
+}
+.hero-text h1 span { color: var(--slack-yellow); }
+.hero-text p { font-size: 18px; margin-bottom: 30px; opacity: 0.9; }
+
+.hero-cta { display: flex; gap: 15px; margin-bottom: 20px; }
+.btn-white {
+    background: white; color: var(--slack-purple); padding: 15px 25px;
+    border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 14px;
+}
+.btn-google {
+    background: var(--slack-blue); color: white; padding: 15px 25px;
+    border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; gap: 10px;
+}
+.btn-google img { width: 20px; background: white; padding: 2px; border-radius: 2px; }
+
+.hero-subtext { font-size: 14px; opacity: 0.8; }
+
+.hero-image img { width: 110%; border-radius: 10px; }
+
+/* Trust Bar */
+.trust-bar {
+    background-color: #f4ede4;
+    color: #1d1d1d;
+    padding: 60px 0;
+    text-align: center;
+}
+.trust-bar p { font-weight: 800; font-size: 12px; letter-spacing: 1px; margin-bottom: 40px; }
+.logo-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    flex-wrap: wrap;
+    opacity: 0.7;
+}
+.logo-grid img { height: 25px; filter: grayscale(100%); transition: 0.3s; }
+.logo-grid img:hover { filter: grayscale(0%); opacity: 1; }
