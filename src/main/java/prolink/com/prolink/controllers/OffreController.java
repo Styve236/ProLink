@@ -73,7 +73,7 @@ public class OffreController {
     }
 
     // FORMULAIRE CRÉATION D'OFFRE — Recruteur uniquement
-    @GetMapping("/offre-form")
+    @GetMapping({"/nouvelle","/offre-form"})
     public String afficherFormulaireCreation(Model model) {
         model.addAttribute("offreDto", new OffreDto());
         return "offres/offre-form";
@@ -97,8 +97,8 @@ public class OffreController {
             return "redirect:/offres/mes-offres";
 
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
-            return "redirect:/offres/offre-form";
+            result.rejectValue("erreur", e.getMessage());
+            return "offres/offre-form";
         }
     }
 

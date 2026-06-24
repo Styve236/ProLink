@@ -53,8 +53,6 @@ public class User {
     @Column(length = 100)
     private String ville;
 
-    private String Active;
-
     // Photo de profil — chemin vers le fichier uploadé
     @Column(name = "photo_url")
     private String photoUrl;

@@ -85,11 +85,36 @@
           <div class="row g-3">
             <div class="col-md-8">
               <div class="d-flex flex-wrap gap-3 mb-3 text-muted small">
-                <span th:if="${offre.entreprise != null}"><i class="fa fa-building me-1"></i><span th:text="${offre.entreprise}"></span></span>
-                <span th:if="${offre.lieu != null}"><i class="fa fa-map-marker-alt me-1"></i><span th:text="${offre.lieu}"></span></span>
-                <span th:if="${offre.typeContrat != null}"><i class="far fa-clock me-1"></i><span th:text="${offre.typeContrat}"></span></span>
-                <span th:if="${offre.remuneration != null}"><i class="far fa-money-bill-alt me-1"></i><span th:text="${offre.remuneration}"></span></span>
-                <span><i class="fa fa-calendar me-1"></i><span th:text="${#temporals.format(offre.datePublication, 'dd/MM/yyyy')}"></span></span>
+
+                <!-- Entreprise : champ direct ou nom du recruteur -->
+                <span th:if="${offre.entreprise != null and !#strings.isEmpty(offre.entreprise)}">
+                  <i class="fa fa-building me-1"></i>
+                  <span th:text="${offre.entreprise}"></span>
+                </span>
+                <span th:if="${(offre.entreprise == null or #strings.isEmpty(offre.entreprise)) and offre.recruteur != null}">
+                  <i class="fa fa-building me-1"></i>
+                  <span th:text="${offre.recruteur.nomComplet}"></span>
+                </span>
+
+                <span th:if="${offre.lieu != null}">
+                  <i class="fa fa-map-marker-alt me-1"></i>
+                  <span th:text="${offre.lieu}"></span>
+                </span>
+                <span th:if="${offre.typeContrat != null}">
+                  <i class="far fa-clock me-1"></i>
+                  <span th:text="${offre.typeContrat}"></span>
+                </span>
+                <span th:if="${offre.remuneration != null}">
+                  <i class="far fa-money-bill-alt me-1"></i>
+                  <span th:text="${offre.remuneration}"></span>
+                </span>
+
+                <!-- Date publication protégée contre le null -->
+                <span>
+                  <i class="fa fa-calendar me-1"></i>
+                  <span th:text="${offre.datePublication != null ? #temporals.format(offre.datePublication, 'dd/MM/yyyy') : 'N/A'}"></span>
+                </span>
+
               </div>
               <p class="text-muted mb-2" th:text="${#strings.abbreviate(offre.description, 300)}"></p>
               <div th:if="${offre.competencesRequises != null}" class="mt-2">
@@ -143,5 +168,12 @@
 <script th:src="@{/lib/easing/easing.min.js}"></script>
 <script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
 <script th:src="@{/js/main.js}"></script>
+<!-- Sécurité : cache le spinner même si WOW plante -->
+<script>
+  setTimeout(function() {
+    var s = document.getElementById('spinner');
+    if (s) s.classList.remove('show');
+  }, 500);
+</script>
 </body>
 </html>

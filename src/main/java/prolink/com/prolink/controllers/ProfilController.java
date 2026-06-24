@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import prolink.com.prolink.entities.Etudiant;
 import prolink.com.prolink.entities.User;
-import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.enums.StatutCompte;
 import prolink.com.prolink.services.AuthService;
 import prolink.com.prolink.services.NotificationService;
@@ -51,8 +50,11 @@ public class ProfilController {
         return switch (user.getRole()) {
             case ETUDIANT -> {
                 // TODO: model.addAttribute("candidatures", candidatureService.ObtenirPourEtudiant(user.getId()));
-                model.addAttribute("etudiant", (Etudiant) user);
-                yield "profil/mon-profil";
+                if(user instanceof Etudiant etudiant){
+                    model.addAttribute("etudiant", etudiant);
+                    //model.addAttribute("stats", stats);
+                }
+                yield "profil/dashboard-etudiant";
             }
 
             case FREELANCE -> {
@@ -68,6 +70,8 @@ public class ProfilController {
                 var offresRecruteur = offreService.getOffresParEntreprise(user.getId());
                 model.addAttribute("offres", offresRecruteur);
 
+                model.addAttribute("candidaturesParOffre",
+                        offreService.getCandidaturesParOffre(user.getId()));
                 // 3. On crée et on passe les statistiques rapides pour les cartes Bootstrap
                 java.util.Map<String, Object> stats = new java.util.HashMap<>();
                 stats.put("totalOffres", offresRecruteur.size());

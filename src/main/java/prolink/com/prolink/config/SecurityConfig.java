@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -35,8 +36,8 @@ public class SecurityConfig {
     // ----------------------------------------------------------------
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
@@ -53,11 +54,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
 
+                        // 1. Ressources statiques — toujours en premier
                         .requestMatchers(
-                                "/css/**", "/js/**", "/images/**",
+                                "/css/**", "/js/**", "/img/**", "/lib/**",
                                 "/webjars/**", "/favicon.ico"
                         ).permitAll()
 
+                        // 2. Pages publiques générales
                         .requestMatchers(
                                 "/",
                                 "/index",
@@ -65,24 +68,37 @@ public class SecurityConfig {
                                 "/auth/connexion",
                                 "/auth/deconnexion",
                                 "/compte/en-attente",
-                                "/offres",
-                                "/offres/{id}"
+                                "/erreur/**",
+                                "/offres"
                         ).permitAll()
 
+                        // 3. Admin uniquement
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        // 4. Routes Recruteur — AVANT /offres/{id} pour éviter le conflit de pattern
                         .requestMatchers(
+                                "/offres/offre-form",
                                 "/offres/nouvelle",
+                                "/offres/enregistrer",
+                                "/offres/mes-offres",
                                 "/offres/*/modifier",
                                 "/offres/*/supprimer",
-                                "/candidatures/*/traiter"
+                                "/offres/*/archiver",
+                                "/offres/*/candidatures",
+                                "/offres/candidatures/*/accepter",
+                                "/offres/candidatures/*/refuser"
                         ).hasRole("RECRUTEUR")
 
+                        // 5. Détail d'une offre publique — APRÈS les routes spécifiques
+                        .requestMatchers("/offres/*").permitAll()
+
+                        // 6. Routes Étudiant / Freelance
                         .requestMatchers(
                                 "/candidatures/postuler/**",
                                 "/documents/upload"
                         ).hasAnyRole("ETUDIANT", "FREELANCE")
 
+                        // 7. Routes authentifiées
                         .requestMatchers(
                                 "/profil/**",
                                 "/messages/**",
@@ -112,8 +128,7 @@ public class SecurityConfig {
                 )
 
                 .exceptionHandling(ex -> ex
-                        .accessDeniedPage("/erreur/acces-refuse")
-                )
+                        .accessDeniedPage("/erreur/acces-refuse")                )
 
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/ws/**", "/app/**", "/topic/**")

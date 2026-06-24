@@ -46,4 +46,15 @@ public class PageController {
         }
         return "compte-en-attente";
     }
+
+    @GetMapping("/erreur/acces-refuse")
+    public String accesRefuse() {
+
+        return "error/401";
+    }
+
+    @GetMapping("/erreur/404")
+    public String erreur404() {
+        return "error/404";
+    }
 }

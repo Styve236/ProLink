@@ -75,4 +75,8 @@ public class JobOffer {
     protected void onCreate() {
         this.datePublication = LocalDateTime.now();
     }
+
+    public int getNombreCandidatures(){
+        return candidatures != null ? candidatures.size() : 0;
+    }
 }

@@ -181,7 +181,7 @@
                                                 <span th:case="*" class="badge bg-secondary" th:text="${offre.statut}"></span>
                                             </span>
                                             <div class="small text-muted mt-1">
-                                                <span th:text="${#lists.size(offre.candidatures)}">0</span> candidat(s)
+                                                <span th:text="${candidaturesParOffre[offre.id] ?: 0}">0</span> candidat(s)
                                             </div>
                                         </div>
                                     </div>

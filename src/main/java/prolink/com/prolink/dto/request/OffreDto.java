@@ -21,7 +21,7 @@ public class OffreDto {
     @NotBlank(message = "La description est obligatoire")
     private String description;
 
-    @NotNull(message = "Le type de contrat est obligatoire")
+    @NotBlank(message = "Le type de contrat est obligatoire")
     private String typeContrat;  // CDI, CDD, Stage, Freelance, Alternance
 
     private String lieu;
