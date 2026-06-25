@@ -16,9 +16,12 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final EmailService emailService;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository,
+                               EmailService emailService) {
         this.notificationRepository = notificationRepository;
+        this.emailService = emailService;
     }
 
     // MÉTHODES PUBLIQUES — appelées par les autres services
@@ -58,25 +61,34 @@ public class NotificationService {
                 TypeNotification.OFFRE_APPROUVEE,
                 "/offres/" + offre.getId()
         );
+        emailService.notifierOffreApprouvee(offre.getRecruteur().getEmail(), offre.getTitre());
     }
 
-    public void notifierDocumentValide(User utilisateur, String nomDocument) {
+    public boolean notifierDocumentValide(User utilisateur, String nomDocument) {
         creer(
                 utilisateur,
                 "Votre document \"" + nomDocument + "\" a été validé.",
                 TypeNotification.DOCUMENT_VALIDE,
                 "/profil/mes-documents"
         );
+        return emailService.notifierDocumentValide(utilisateur.getEmail(), nomDocument);
     }
 
-    public void notifierDocumentRejete(User utilisateur, String nomDocument) {
+    public boolean notifierDocumentRejete(User utilisateur, String nomDocument) {
+        return notifierDocumentRejete(utilisateur, nomDocument, null);
+    }
+
+    public boolean notifierDocumentRejete(User utilisateur, String nomDocument, String commentaire) {
+        String extra = commentaire != null && !commentaire.isBlank()
+                ? " Motif : " + commentaire
+                : " Consultez le commentaire de l'administrateur.";
         creer(
                 utilisateur,
-                "Votre document \"" + nomDocument + "\" a été rejeté. " +
-                        "Consultez le commentaire de l'administrateur.",
+                "Votre document \"" + nomDocument + "\" a été rejeté." + extra,
                 TypeNotification.DOCUMENT_REJETE,
                 "/profil/mes-documents"
         );
+        return emailService.notifierDocumentRejete(utilisateur.getEmail(), nomDocument, commentaire);
     }
 
     // ← MÉTHODE AJOUTÉE — appelée par AdminService
@@ -119,7 +131,16 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    //notification pour une nouvelle connexion
+    public void notifierNouveauMessage(User expediteur, User destinataire, String contenu) {
+        String extrait = contenu.length() > 80 ? contenu.substring(0, 80) + "..." : contenu;
+        creer(
+                destinataire,
+                "Nouveau message de " + expediteur.getNomComplet() + " : " + extrait,
+                TypeNotification.NOUVEAU_MESSAGE,
+                "/messages/conversation/" + expediteur.getId()
+        );
+        emailService.notifierNouveauMessage(destinataire.getEmail(), expediteur.getNomComplet());
+    }
 
     public void notifierNouvelleDemandeConnexion(User cible, User demandeur) {
         creer(
@@ -128,4 +149,5 @@ public class NotificationService {
                 TypeNotification.DEMANDE_CONNEXION,
                 "/connexions/recues"
         );
-    }}
+    }
+}

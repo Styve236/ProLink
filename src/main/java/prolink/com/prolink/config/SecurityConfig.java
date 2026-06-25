@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -49,6 +50,19 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            String redirect = request.getParameter("redirect");
+            if (redirect != null && !redirect.isBlank()
+                    && (redirect.startsWith("/") && !redirect.startsWith("//"))) {
+                response.sendRedirect(redirect);
+            } else {
+                response.sendRedirect("/profil/dashboard");
+            }
+        };
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
@@ -69,7 +83,9 @@ public class SecurityConfig {
                                 "/auth/deconnexion",
                                 "/compte/en-attente",
                                 "/erreur/**",
-                                "/offres"
+                                "/offres",
+                                "/a-propos",
+                                "/contact"
                         ).permitAll()
 
                         // 3. Admin uniquement
@@ -114,7 +130,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/auth/connexion")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/profil/dashboard", true)
+                        .successHandler(authenticationSuccessHandler())
                         .failureUrl("/auth/connexion?erreur=true")
                         .permitAll()
                 )

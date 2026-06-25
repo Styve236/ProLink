@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import prolink.com.prolink.entities.Etudiant;
+import prolink.com.prolink.entities.Freelance;
 import prolink.com.prolink.entities.User;
 import prolink.com.prolink.enums.StatutCompte;
 import prolink.com.prolink.services.AuthService;
+import prolink.com.prolink.services.CandidatureService;
+import prolink.com.prolink.services.DocumentService;
 import prolink.com.prolink.services.NotificationService;
 import prolink.com.prolink.services.OffreService;
 import prolink.com.prolink.services.ProfilService;
@@ -27,6 +30,8 @@ public class ProfilController {
     private final AuthService authService;
     private final NotificationService notificationService;
     private final OffreService offreService;
+    private final CandidatureService candidatureService;
+    private final DocumentService documentService;
 
     // DASHBOARD — redirection selon le rôle
 
@@ -49,16 +54,21 @@ public class ProfilController {
         // Redirige vers le bon dashboard selon le rôle et charge les données nécessaires
         return switch (user.getRole()) {
             case ETUDIANT -> {
-                // TODO: model.addAttribute("candidatures", candidatureService.ObtenirPourEtudiant(user.getId()));
                 if(user instanceof Etudiant etudiant){
                     model.addAttribute("etudiant", etudiant);
-                    //model.addAttribute("stats", stats);
                 }
+                model.addAttribute("documents",
+                        documentService.getMesDocuments(userDetails.getUsername()));
+                model.addAttribute("dernieresCandidatures",
+                        candidatureService.getMesCandidatures(userDetails.getUsername()));
                 yield "profil/dashboard-etudiant";
             }
 
             case FREELANCE -> {
-                // TODO: model.addAttribute("propositions", ...);
+                model.addAttribute("documents",
+                        documentService.getMesDocuments(userDetails.getUsername()));
+                model.addAttribute("dernieresCandidatures",
+                        candidatureService.getMesCandidatures(userDetails.getUsername()));
                 yield "profil/dashboard-freelance";
             }
 
@@ -97,7 +107,7 @@ public class ProfilController {
         model.addAttribute("utilisateur", user);
 
         long notifNonLues = notificationService.compterNonLues(user);
-        model.addAttribute("notificationNonLues", notifNonLues);
+        model.addAttribute("notifNonLues", notifNonLues);
 
         return "profil/mon-profil";
     }
@@ -106,7 +116,8 @@ public class ProfilController {
 
     @GetMapping("/{id}")
     public String afficherProfilPublic(@PathVariable Long id,
-                                       Model model) {
+                                       Model model,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
         try {
             User user = profilService.getProfilParId(id);
 
@@ -117,6 +128,18 @@ public class ProfilController {
             }
 
             model.addAttribute("profil", user);
+
+            // Documents validés de l'utilisateur (photos visibles sur le profil)
+            model.addAttribute("documentsValides", documentService.getDocumentsValides(user));
+
+            // Info pour savoir si c'est notre propre profil et badge notifications
+            if (userDetails != null) {
+                User moi = profilService.getProfilComplet(userDetails.getUsername());
+                model.addAttribute("estMonProfil", moi.getId().equals(id));
+                model.addAttribute("notifNonLues", notificationService.compterNonLues(moi));
+                model.addAttribute("utilisateur", moi);
+            }
+
             return "profil/profil-public";
 
         } catch (IllegalArgumentException e) {
@@ -244,6 +267,19 @@ public class ProfilController {
         return "redirect:/profil/mon-profil";
     }
 
+
+    // PAGE NOTIFICATIONS
+    @GetMapping("/notifications")
+    public String notifications(@AuthenticationPrincipal UserDetails userDetails,
+                                Model model) {
+        User user = profilService.getProfilComplet(userDetails.getUsername());
+        model.addAttribute("utilisateur", user);
+        model.addAttribute("notifications",
+                notificationService.getMesNotifications(user));
+        model.addAttribute("notifNonLues",
+                notificationService.compterNonLues(user));
+        return "notification";
+    }
 
     // RECHERCHE DE PROFILS
     @GetMapping("/recherche")

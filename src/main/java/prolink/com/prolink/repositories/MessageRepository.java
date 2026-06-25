@@ -25,6 +25,16 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     long countByDestinataireAndLuFalse(User destinataire);
 
+    // Contacts : utilisateurs qui nous ont envoyé un message
+    @Query("SELECT DISTINCT m.expediteur FROM Message m WHERE m.destinataire.id = :userId")
+    List<User> findExpediteurs(@Param("userId") Long userId);
+
+    // Contacts : utilisateurs à qui on a envoyé un message
+    @Query("SELECT DISTINCT m.destinataire FROM Message m WHERE m.expediteur.id = :userId")
+    List<User> findDestinataires(@Param("userId") Long userId);
+
+    long countByExpediteurAndDestinataire(User expediteur, User destinataire);
+
     // Utilisé par AdminService pour suppression propre
     void deleteByExpediteur(User expediteur);
     void deleteByDestinataire(User destinataire);

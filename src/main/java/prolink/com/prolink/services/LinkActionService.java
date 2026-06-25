@@ -11,6 +11,7 @@ import prolink.com.prolink.security.RequiertCompteValide;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -99,6 +100,18 @@ public class LinkActionService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
         return linkActionRepository.countByCibleAndStatut(user, "EN_ATTENTE");
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> getConnexionsAcceptees(User utilisateur) {
+        List<LinkAction> actions = linkActionRepository.findConnexionsAcceptees(utilisateur.getId());
+        return actions.stream().map(action -> {
+            if (action.getDemandeur().getId().equals(utilisateur.getId())) {
+                return action.getCible();
+            } else {
+                return action.getDemandeur();
+            }
+        }).collect(Collectors.toList());
     }
 
     /**

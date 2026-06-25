@@ -53,6 +53,7 @@
                     <div class="alert alert-success" th:if="${succes}" th:text="${succes}"></div>
 
                     <form th:action="@{/auth/connexion}" method="post">
+                        <input type="hidden" name="redirect" th:value="${redirect}" th:if="${redirect != null}"/>
                         <div class="mb-3">
                             <label for="email" class="form-label">Adresse email</label>
                             <input type="email" id="email" name="email" class="form-control py-3"

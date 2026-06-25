@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <title th:text="${offre.titre} + ' - ProLink'">ProLink</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta name="description" th:content="${offre.titre} + ' chez ' + ${offre.nomEntreprise} + ' - ' + ${offre.lieu}">
+    <meta name="description" th:content="${offre.titre} + ' chez ' + ${offre.entreprise} + ' - ' + ${offre.lieu}">
 
     <link th:href="@{/img/favicon.ico}" rel="icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,7 +68,7 @@
             <div class="row gy-5 gx-4">
                 <div class="col-lg-8">
                     <div class="d-flex align-items-center mb-5">
-                        <img class="flex-shrink-0 img-fluid border rounded" th:src="@{/img/com-logo-2.jpg}" alt="" style="width: 80px; height: 80px;">
+                        <img class="flex-shrink-0 img-fluid border rounded" th:src="@{|/img/com-logo-${(offre.id % 5) + 1}.jpg|}" alt="" style="width: 80px; height: 80px;">
                         <div class="text-start ps-4">
                             <h3 class="mb-3" th:text="${offre.titre}">Titre</h3>
                             <span class="text-truncate me-3"><i class="fa fa-map-marker-alt text-primary me-2"></i><span th:text="${offre.lieu}">Lieu</span></span>
@@ -107,10 +107,16 @@
                         </form>
 
                         <!-- Si non connecté : redirection -->
-                        <div sec:authorize="!isAuthenticated()">
-                            <p>Vous devez être connecté pour postuler à cette offre.</p>
-                            <a th:href="@{/auth/connexion(redirect=@{/offres/{id}(id=${offre.id})})}"
-                               class="btn btn-primary">Se connecter pour postuler</a>
+                        <div sec:authorize="!isAuthenticated()" class="text-center py-3">
+                            <p class="mb-3"><i class="fa fa-lock me-2"></i>Vous devez avoir un compte pour postuler à cette offre.</p>
+                            <a th:href="@{/auth/connexion(redirect='/offres/' + ${offre.id})}"
+                               class="btn btn-primary me-2">
+                                <i class="fa fa-sign-in-alt me-1"></i>Se connecter
+                            </a>
+                            <a th:href="@{/auth/inscription}"
+                               class="btn btn-outline-primary">
+                                <i class="fa fa-user-plus me-1"></i>Créer un compte
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -128,7 +134,7 @@
                     </div>
                     <div class="bg-light rounded p-5 wow slideInUp" data-wow-delay="0.1s">
                         <h4 class="mb-4">À propos de l'entreprise</h4>
-                        <p class="m-0" th:text="${offre.nomEntreprise}">Entreprise</p>
+                        <p class="m-0" th:text="${offre.entreprise}">Entreprise</p>
                     </div>
                 </div>
             </div>

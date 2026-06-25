@@ -1,56 +1,80 @@
 package prolink.com.prolink.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.server.HandshakeInterceptor;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-/**
- * Configuration WebSocket avec le protocole STOMP pour le chat temps réel.
- *
- * Flux d'un message de chat :
- *  1. Client JS se connecte à /ws (endpoint SockJS)
- *  2. Client envoie un message vers /app/chat.envoyer
- *  3. ChatController reçoit avec @MessageMapping("/chat.envoyer")
- *  4. ChatController diffuse vers /topic/chat.{roomId}
- *  5. Tous les abonnés à ce topic reçoivent le message en temps réel
- */
+import java.security.Principal;
+import java.util.Map;
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    /**
-     * Configure le broker de messages.
-     *
-     * /topic  → diffusion 1-vers-plusieurs (chat de groupe, notifications globales)
-     * /queue  → messages privés 1-vers-1 (messagerie directe entre deux utilisateurs)
-     * /app    → préfixe pour les méthodes @MessageMapping des controllers
-     */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // Broker simple en mémoire pour /topic et /queue
-        // En production avancée, on remplacerait par RabbitMQ ou ActiveMQ
         registry.enableSimpleBroker("/topic", "/queue");
-
-        // Préfixe des destinations gérées par les @MessageMapping
         registry.setApplicationDestinationPrefixes("/app");
-
-        // Préfixe pour les messages privés (ex: /user/{username}/queue/messages)
         registry.setUserDestinationPrefix("/user");
     }
 
-    /**
-     * Enregistre l'endpoint WebSocket avec fallback SockJS.
-     *
-     * SockJS assure la compatibilité avec les navigateurs
-     * qui ne supportent pas WebSocket nativement.
-     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
+                .addInterceptors(handshakeInterceptor())
                 .withSockJS();
+    }
+
+    private HandshakeInterceptor handshakeInterceptor() {
+        return new HandshakeInterceptor() {
+            @Override
+            public boolean beforeHandshake(
+                    org.springframework.http.server.ServerHttpRequest request,
+                    org.springframework.http.server.ServerHttpResponse response,
+                    org.springframework.web.socket.WebSocketHandler wsHandler,
+                    Map<String, Object> attributes) {
+
+                Principal principal = request.getPrincipal();
+                if (principal != null) {
+                    attributes.put("userEmail", principal.getName());
+                }
+                return true;
+            }
+
+            @Override
+            public void afterHandshake(
+                    org.springframework.http.server.ServerHttpRequest request,
+                    org.springframework.http.server.ServerHttpResponse response,
+                    org.springframework.web.socket.WebSocketHandler wsHandler,
+                    Exception exception) {
+            }
+        };
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new org.springframework.messaging.support.ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+                if (accessor.getUser() == null && accessor.getSessionAttributes() != null) {
+                    String email = (String) accessor.getSessionAttributes().get("userEmail");
+                    if (email != null) {
+                        accessor.setUser(() -> email);
+                    }
+                }
+                return message;
+            }
+        });
     }
 }

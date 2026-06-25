@@ -4,20 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import prolink.com.prolink.entities.ChatMessage;
-import prolink.com.prolink.entities.LinkAction;
 import prolink.com.prolink.entities.User;
 import prolink.com.prolink.repositories.ChatMessageRepository;
+import prolink.com.prolink.repositories.MessageRepository;
 import prolink.com.prolink.repositories.UserRepository;
-import prolink.com.prolink.services.LinkActionService;
+import prolink.com.prolink.services.NotificationService;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -41,31 +40,29 @@ public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageRepository chatMessageRepository;
+    private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    private final LinkActionService linkActionService;
+    private final NotificationService notificationService;
     // PAGE DE CHAT
     @GetMapping("/{idDestinataire}")
     public String afficherChat(@PathVariable Long idDestinataire,
-                               @AuthenticationPrincipal UserDetails userDetails,
-                               Model model) {
+                               Model model,
+                               Principal principal) {
 
-        User moi = getUtilisateur(userDetails.getUsername());
-
-        // NOUVEAU : bloque l'accès si pas de connexion acceptée
-        if (!linkActionService.peuventCommuniquer(moi.getId(), idDestinataire)) {
-            return "redirect:/connexions/demander/" + idDestinataire;
-        }
-
+        User moi = getUtilisateur(principal.getName());
         User destinataire = getUtilisateurParId(idDestinataire);
         String roomId = construireRoomId(moi.getId(), idDestinataire);
 
         List<ChatMessage> historique = chatMessageRepository
                 .findByRoomIdOrderByHorodatageAsc(roomId);
 
+        boolean peutEnvoyer = peutEnvoyerMessage(moi, destinataire);
+
         model.addAttribute("moi", moi);
         model.addAttribute("destinataire", destinataire);
         model.addAttribute("roomId", roomId);
         model.addAttribute("historique", historique);
+        model.addAttribute("peutEnvoyer", peutEnvoyer);
 
         return "messages/chat";
     }
@@ -74,7 +71,7 @@ public class ChatController {
     // RÉCEPTION ET DIFFUSION D'UN MESSAGE WEBSOCKET
     @MessageMapping("/chat.envoyer")
     public void envoyerMessage(@Payload Map<String, String> payload,
-                               @AuthenticationPrincipal UserDetails userDetails) {
+                               Principal principal) {
 
         String contenu = payload.get("contenu");
         String roomId  = payload.get("roomId");
@@ -83,15 +80,16 @@ public class ChatController {
             return;
         }
 
-        User expediteur = getUtilisateur(userDetails.getUsername());
+        User expediteur = getUtilisateur(principal.getName());
         Long destinataireId = extraireIdDestinataire(roomId, expediteur.getId());
+        User destinataire = getUtilisateurParId(destinataireId);
 
-        // NOUVEAU : vérification d'accès avant tout envoi/sauvegarde
-        if (!linkActionService.peuventCommuniquer(expediteur.getId(), destinataireId)) {
+        if (!peutEnvoyerMessage(expediteur, destinataire)) {
             messagingTemplate.convertAndSendToUser(
-                    userDetails.getUsername(),
+                    principal.getName(),
                     "/queue/erreurs",
-                    Map.of("erreur", "Vous devez d'abord être en contact avec cet utilisateur.")
+                    Map.of("erreur", "Attendez que " + destinataire.getPrenom()
+                            + " vous réponde avant d'envoyer un autre message.")
             );
             return;
         }
@@ -102,6 +100,8 @@ public class ChatController {
         message.setRoomId(roomId);
         message.setHorodatage(LocalDateTime.now());
         chatMessageRepository.save(message);
+
+        notificationService.notifierNouveauMessage(expediteur, destinataire, contenu.trim());
 
         Map<String, String> reponse = Map.of(
                 "expediteurId",  String.valueOf(expediteur.getId()),
@@ -117,12 +117,12 @@ public class ChatController {
     // NOTIFICATION DE FRAPPE (optionnel — "X est en train d'écrire...")
     @MessageMapping("/chat.frappe")
     public void notifierFrappe(@Payload Map<String, String> payload,
-                               @AuthenticationPrincipal UserDetails userDetails) {
+                               Principal principal) {
 
         String roomId = payload.get("roomId");
         if (roomId == null) return;
 
-        User expediteur = getUtilisateur(userDetails.getUsername());
+        User expediteur = getUtilisateur(principal.getName());
 
         Map<String, String> frappe = Map.of(
                 "expediteurNom", expediteur.getNomComplet(),
@@ -155,5 +155,13 @@ public class ChatController {
         long idA = Long.parseLong(parties[0]);
         long idB = Long.parseLong(parties[1]);
         return idA == monId ? idB : idA;
+    }
+
+    private boolean peutEnvoyerMessage(User expediteur, User destinataire) {
+        long envoyeParMoi = messageRepository
+                .countByExpediteurAndDestinataire(expediteur, destinataire);
+        long envoyeParLui = messageRepository
+                .countByExpediteurAndDestinataire(destinataire, expediteur);
+        return envoyeParMoi == 0 || envoyeParLui > 0;
     }
 }

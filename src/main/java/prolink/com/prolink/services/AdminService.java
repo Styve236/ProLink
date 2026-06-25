@@ -18,27 +18,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @Transactional
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminService {
+
+    private static final Logger log = LoggerFactory.getLogger(AdminService.class);
 
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
     private final MessageRepository messageRepository;
     private final CandidatureRepository candidatureRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     public AdminService(UserRepository userRepository,
                         DocumentRepository documentRepository,
                         MessageRepository messageRepository,
                         CandidatureRepository candidatureRepository,
-                        NotificationService notificationService) {
+                        NotificationService notificationService,
+                        EmailService emailService) {
         this.userRepository = userRepository;
         this.documentRepository = documentRepository;
         this.messageRepository = messageRepository;
         this.candidatureRepository = candidatureRepository;
         this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     // STATS DASHBOARD
@@ -70,12 +78,19 @@ public class AdminService {
     }
 
     // VALIDATION DE COMPTE
-    public User validerCompte(Long userId, int trustScore, String commentaire) {
+    public Map<String, Object> validerCompte(Long userId, int trustScore, String commentaire) {
         User user = getUtilisateurParId(userId);
         user.setStatut(StatutCompte.ACTIF);
-        // Borne le score entre 0 et 100
         user.setTrustScore(Math.max(0, Math.min(100, trustScore)));
-        return userRepository.save(user);
+        userRepository.save(user);
+        boolean emailEnvoye = emailService.notifierCompteValide(user.getEmail(), user.getPrenom());
+        if (!emailEnvoye) {
+            log.warn("Email de validation de compte non envoyé à {} (SMTP non configuré ?)", user.getEmail());
+        }
+        Map<String, Object> resultat = new HashMap<>();
+        resultat.put("user", user);
+        resultat.put("emailEnvoye", emailEnvoye);
+        return resultat;
     }
 
     // CHANGER STATUT — bannir / archiver / réactiver
@@ -125,26 +140,37 @@ public class AdminService {
         return documentRepository.findByStatutValidation(StatutValidation.EN_ATTENTE);
     }
 
-    public Document validerDocument(Long documentId) {
+    public Map<String, Object> validerDocument(Long documentId) {
         Document doc = getDocumentParId(documentId);
         doc.setStatutValidation(StatutValidation.VALIDE);
         doc.setDateValidation(LocalDateTime.now());
         documentRepository.save(doc);
-        // Appel via notificationService — pas creer() directement
-        notificationService.notifierDocumentValide(
+        boolean emailEnvoye = notificationService.notifierDocumentValide(
                 doc.getUtilisateur(), doc.getNomFichier());
-        return doc;
+        if (!emailEnvoye) {
+            log.warn("Email de validation de document non envoyé à {} (SMTP non configuré ?)", doc.getUtilisateur().getEmail());
+        }
+        Map<String, Object> resultat = new HashMap<>();
+        resultat.put("document", doc);
+        resultat.put("emailEnvoye", emailEnvoye);
+        return resultat;
     }
 
-    public Document rejeterDocument(Long documentId, String commentaire) {
+    public Map<String, Object> rejeterDocument(Long documentId, String commentaire) {
         Document doc = getDocumentParId(documentId);
         doc.setStatutValidation(StatutValidation.REJETE);
         doc.setCommentaireAdmin(commentaire);
         doc.setDateValidation(LocalDateTime.now());
         documentRepository.save(doc);
-        notificationService.notifierDocumentRejete(
-                doc.getUtilisateur(), doc.getNomFichier());
-        return doc;
+        boolean emailEnvoye = notificationService.notifierDocumentRejete(
+                doc.getUtilisateur(), doc.getNomFichier(), commentaire);
+        if (!emailEnvoye) {
+            log.warn("Email de rejet de document non envoyé à {} (SMTP non configuré ?)", doc.getUtilisateur().getEmail());
+        }
+        Map<String, Object> resultat = new HashMap<>();
+        resultat.put("document", doc);
+        resultat.put("emailEnvoye", emailEnvoye);
+        return resultat;
     }
 
     // UTILITAIRE PRIVÉ

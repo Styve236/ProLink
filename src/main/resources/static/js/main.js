@@ -77,5 +77,24 @@
         }
     });
     
+    // Notification badge auto-refresh
+    function updateNotifBadge() {
+        var badges = document.querySelectorAll('.notif-badge, [id*="notif"], .badge-notification');
+        if (!badges.length) return;
+        fetch('/notifications/count')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = data.nonLues || 0;
+                badges.forEach(function(b) {
+                    if (count > 0) { b.textContent = count; b.style.display = ''; }
+                    else { b.style.display = 'none'; }
+                });
+            })
+            .catch(function(){});
+    }
+    if (document.readyState === 'complete') updateNotifBadge();
+    else document.addEventListener('DOMContentLoaded', updateNotifBadge);
+    setInterval(updateNotifBadge, 15000);
+
 })(jQuery);
 

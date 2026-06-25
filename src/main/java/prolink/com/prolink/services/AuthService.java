@@ -18,6 +18,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 /**
  * Service central pour l'authentification.
@@ -69,6 +76,13 @@ public class AuthService {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException(
                     "Un compte existe déjà avec cet email : " + dto.getEmail()
+            );
+        }
+
+        // Validation email @gmail.com uniquement
+        if (dto.getEmail() == null || !dto.getEmail().toLowerCase().endsWith("@gmail.com")) {
+            throw new IllegalArgumentException(
+                    "Seules les adresses @gmail.com sont acceptées."
             );
         }
 
@@ -150,6 +164,35 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setTelephone(dto.getTelephone());
         user.setVille(dto.getVille());
+
+        // Photo de profil (optionnelle)
+        MultipartFile photo = dto.getPhoto();
+        if (photo != null && !photo.isEmpty()) {
+            String contentType = photo.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException(
+                        "Format photo invalide. Seules les images sont acceptées."
+                );
+            }
+            try {
+                String extension = obtenirExtension(photo.getOriginalFilename());
+                String nomFichier = UUID.randomUUID() + "." + extension;
+                Path dossier = Paths.get("uploads/photos/");
+                Files.createDirectories(dossier);
+                Path destination = dossier.resolve(nomFichier);
+                Files.copy(photo.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+                user.setPhotoUrl("/uploads/photos/" + nomFichier);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(
+                        "Erreur lors de l'enregistrement de la photo : " + e.getMessage()
+                );
+            }
+        }
+    }
+
+    private String obtenirExtension(String nomFichier) {
+        if (nomFichier == null || !nomFichier.contains(".")) return "jpg";
+        return nomFichier.substring(nomFichier.lastIndexOf('.') + 1).toLowerCase();
     }
 
     // CONNEXION

@@ -1,11 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>ProLink - Listes des candidats</title>
+    <meta charset="utf-8">
+    <title>Candidatures - <span th:text="${offre.titre}">Offre</span> - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 <body>
-<p>liste de tous les candidats de la plateformes
-    merci de la bonnne nouvelles</p>
+<div class="container-xxl bg-white p-0">
+
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Chargement...</span>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
+                <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
+                <a th:href="@{/profil/dashboard}" class="nav-item nav-link active">Dashboard</a>
+                <form th:action="@{/auth/deconnexion}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-link nav-link text-danger p-0">
+                        <i class="fa fa-sign-out-alt me-1"></i>Déconnexion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Candidatures reçues</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-uppercase">
+                    <li class="breadcrumb-item"><a th:href="@{/}" class="text-white">Accueil</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/offres/mes-offres}" class="text-white">Mes offres</a></li>
+                    <li class="breadcrumb-item text-white active" aria-current="page" th:text="${offre.titre}">Offre</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5">
+        <div class="container">
+
+            <div th:if="${succes}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fa fa-check-circle me-2"></i><span th:text="${succes}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${erreur}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fa fa-exclamation-circle me-2"></i><span th:text="${erreur}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fa fa-briefcase text-primary me-2"></i>
+                        <span th:text="${offre.titre}">Titre</span>
+                        <small class="text-muted ms-3">
+                            <i class="fa fa-building me-1"></i><span th:text="${offre.entreprise}">Entreprise</span>
+                            <span th:if="${offre.lieu}"> · <i class="fa fa-map-marker-alt me-1"></i><span th:text="${offre.lieu}"></span></span>
+                        </small>
+                    </h5>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(candidatures)}" class="text-center py-5">
+                <i class="fa fa-users fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted">Aucune candidature pour cette offre</h4>
+            </div>
+
+            <div th:each="c : ${candidatures}" class="card border-0 shadow mb-4 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="card-body">
+                    <div class="row align-items-start g-3">
+                        <div class="col-auto">
+                            <div class="bg-light rounded p-3 text-center" style="width:60px;">
+                                <i class="fa fa-user fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h6 class="mb-1" th:text="${c.candidat.nomComplet}">Nom</h6>
+                            <div class="d-flex flex-wrap gap-3 text-muted small">
+                                <span><i class="fa fa-envelope me-1"></i><span th:text="${c.candidat.email}">email</span></span>
+                                <span><i class="fa fa-calendar me-1"></i>Postulé le <span th:text="${#temporals.format(c.dateCandidature, 'dd/MM/yyyy HH:mm')}">date</span></span>
+                            </div>
+                            <div class="mt-2 p-3 bg-light rounded">
+                                <p class="mb-0 small" th:text="${c.messageMotivation}">Message</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-2">
+                                <span th:switch="${c.statut.name()}">
+                                    <span th:case="'EN_ATTENTE'" class="badge bg-warning text-dark fs-6 w-100 py-2">En attente</span>
+                                    <span th:case="'ACCEPTEE'" class="badge bg-success fs-6 w-100 py-2">Acceptée</span>
+                                    <span th:case="'REFUSEE'" class="badge bg-danger fs-6 w-100 py-2">Refusée</span>
+                                </span>
+                            </div>
+                            <form th:action="@{/offres/candidatures/{id}/accepter(id=${c.id})}" method="post" class="mb-2"
+                                  th:if="${c.statut.name() == 'EN_ATTENTE'}">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-success w-100 btn-sm">
+                                    <i class="fa fa-check me-1"></i>Accepter
+                                </button>
+                            </form>
+                            <form th:action="@{/offres/candidatures/{id}/refuser(id=${c.id})}" method="post"
+                                  th:if="${c.statut.name() == 'EN_ATTENTE'}">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="commentaire" class="form-control"
+                                           placeholder="Motif du refus...">
+                                    <button type="submit" class="btn btn-danger"
+                                            onclick="return confirm('Refuser ce candidat ?')">
+                                        <i class="fa fa-times me-1"></i>Refuser
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5 text-center">
+            &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a>, Tous droits réservés.
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

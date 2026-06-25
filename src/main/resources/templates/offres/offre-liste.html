@@ -108,11 +108,11 @@
             </div>
 
             <!-- Offres -->
-            <div th:each="offre : ${listeOffres}" class="job-item p-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+            <div th:each="offre, stat : ${listeOffres}" class="job-item p-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
                 <div class="row g-4">
                     <div class="col-sm-auto col-md-3">
                         <div class="text-center bg-light rounded p-3 h-100 d-flex align-items-center justify-content-center">
-                            <img class="img-fluid" th:src="@{/img/com-logo-1.jpg}" alt="" style="width:80px;height:80px;object-fit:cover;">
+                            <img class="img-fluid" th:src="@{|/img/com-logo-${stat.index % 5 + 1}.jpg|}" alt="" style="width:80px;height:80px;object-fit:cover;">
                         </div>
                     </div>
                     <div class="col-sm col-md-6">

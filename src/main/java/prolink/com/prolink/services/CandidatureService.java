@@ -35,15 +35,18 @@ public class CandidatureService {
     private final JobOfferRepository jobOfferRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     public CandidatureService(CandidatureRepository candidatureRepository,
                               JobOfferRepository jobOfferRepository,
                               UserRepository userRepository,
-                              NotificationService notificationService) {
+                              NotificationService notificationService,
+                              EmailService emailService) {
         this.candidatureRepository = candidatureRepository;
         this.jobOfferRepository = jobOfferRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     // POSTULER — Etudiant ou Freelance uniquement
@@ -117,15 +120,16 @@ public class CandidatureService {
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         candidatureRepository.save(candidature);
 
-        // Notifie le candidat que sa candidature est acceptée
         notificationService.notifierCandidatureAcceptee(candidature);
+        emailService.notifierCandidatureStatut(
+                candidature.getCandidat().getEmail(),
+                candidature.getOffre().getTitre(),
+                "acceptée"
+        );
 
         return candidature;
     }
 
-    /**
-     * Le recruteur refuse une candidature avec un commentaire optionnel.
-     */
     @PreAuthorize("hasRole('RECRUTEUR')")
     public Candidature refuserCandidature(Long candidatureId,
                                           String emailRecruteur,
@@ -138,8 +142,12 @@ public class CandidatureService {
         candidature.setCommentaireRecruteur(commentaire);
         candidatureRepository.save(candidature);
 
-        // Notifie le candidat du refus
         notificationService.notifierCandidatureRefusee(candidature);
+        emailService.notifierCandidatureStatut(
+                candidature.getCandidat().getEmail(),
+                candidature.getOffre().getTitre(),
+                "refusée"
+        );
 
         return candidature;
     }

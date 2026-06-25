@@ -1,6 +1,11 @@
 package prolink.com.prolink.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,8 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import prolink.com.prolink.entities.User;
 import prolink.com.prolink.enums.RoleUtilisateur;
+import java.util.Map;
 import prolink.com.prolink.enums.StatutCompte;
 import prolink.com.prolink.services.AdminService;
+import prolink.com.prolink.services.DocumentService;
+import prolink.com.prolink.services.EmailService;
 import prolink.com.prolink.services.NotificationService;
 import prolink.com.prolink.services.OffreService;
 
@@ -23,6 +31,8 @@ public class AdminController {
     private final AdminService adminService;
     private final OffreService offreService;
     private final NotificationService notificationService;
+    private final DocumentService documentService;
+    private final EmailService emailService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -60,9 +70,15 @@ public class AdminController {
                                 @RequestParam(required = false) String commentaire,
                                 RedirectAttributes redirectAttributes) {
         try {
-            adminService.validerCompte(userId, trustScore, commentaire);
-            redirectAttributes.addFlashAttribute("succes",
-                    "Compte validé et activé avec succès.");
+            Map<String, Object> resultat = adminService.validerCompte(userId, trustScore, commentaire);
+            boolean emailEnvoye = (boolean) resultat.get("emailEnvoye");
+            String msg = "Compte validé et activé avec succès.";
+            if (emailEnvoye) {
+                msg += " Email de notification envoyé.";
+            } else {
+                msg += " Attention : l'email de notification n'a pas pu être envoyé (SMTP non configuré).";
+            }
+            redirectAttributes.addFlashAttribute("succes", msg);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
         }
@@ -133,6 +149,24 @@ public class AdminController {
         return "redirect:/admin/valider/" + id;
     }
 
+    // TEST EMAIL
+    @PostMapping("/test-email")
+    public String testEmail(RedirectAttributes redirectAttributes) {
+        boolean envoye = emailService.envoyerEmail(
+                "testprolink919@gmail.com",
+                "Test SMTP ProLink",
+                "Bonjour,\n\nCeci est un email de test depuis ProLink.\n\nSi vous recevez ce message, le SMTP fonctionne !\n\nCordialement,\nL'équipe ProLink"
+        );
+        if (envoye) {
+            redirectAttributes.addFlashAttribute("succes",
+                    "Email de test envoyé à testprolink919@gmail.com. Vérifie ta boîte de réception.");
+        } else {
+            redirectAttributes.addFlashAttribute("erreur",
+                    "ÉCHEC de l'envoi. Consulte les logs de la console pour le détail de l'erreur.");
+        }
+        return "redirect:/admin/dashboard";
+    }
+
     // GESTION DES OFFRES
 
     @GetMapping("/offres/pending")
@@ -177,8 +211,15 @@ public class AdminController {
     public String validerDocument(@RequestParam Long id,
                                   RedirectAttributes redirectAttributes) {
         try {
-            adminService.validerDocument(id);
-            redirectAttributes.addFlashAttribute("succes", "Document validé.");
+            Map<String, Object> resultat = adminService.validerDocument(id);
+            boolean emailEnvoye = (boolean) resultat.get("emailEnvoye");
+            String msg = "Document validé.";
+            if (emailEnvoye) {
+                msg += " Email de notification envoyé.";
+            } else {
+                msg += " Attention : l'email de notification n'a pas pu être envoyé (SMTP non configuré).";
+            }
+            redirectAttributes.addFlashAttribute("succes", msg);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
         }
@@ -187,14 +228,42 @@ public class AdminController {
 
     @PostMapping("/documents/rejeter")
     public String rejeterDocument(@RequestParam Long id,
-                                  @RequestParam(required = false) String commentaire,
-                                  RedirectAttributes redirectAttributes) {
+                                   @RequestParam(required = false) String commentaire,
+                                   RedirectAttributes redirectAttributes) {
         try {
-            adminService.rejeterDocument(id, commentaire);
-            redirectAttributes.addFlashAttribute("succes", "Document rejeté.");
+            Map<String, Object> resultat = adminService.rejeterDocument(id, commentaire);
+            boolean emailEnvoye = (boolean) resultat.get("emailEnvoye");
+            String msg = "Document rejeté.";
+            if (emailEnvoye) {
+                msg += " Email de notification envoyé.";
+            } else {
+                msg += " Attention : l'email de notification n'a pas pu être envoyé (SMTP non configuré).";
+            }
+            redirectAttributes.addFlashAttribute("succes", msg);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
         }
         return "redirect:/admin/documents";
+    }
+
+    // TÉLÉCHARGEMENT D'UN DOCUMENT (pour visualisation par l'admin)
+    @GetMapping("/documents/telecharger/{id}")
+    public ResponseEntity<Resource> telechargerDocument(@PathVariable Long id) {
+        try {
+            prolink.com.prolink.entities.Document doc = documentService.getDocumentParId(id);
+            java.nio.file.Path chemin = java.nio.file.Paths.get(doc.getCheminFichier());
+            java.io.File fichier = chemin.toFile();
+            if (!fichier.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            InputStreamResource resource = new InputStreamResource(new java.io.FileInputStream(fichier));
+            String contentType = doc.getTypeMime() != null ? doc.getTypeMime() : "application/octet-stream";
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getNomFichier() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

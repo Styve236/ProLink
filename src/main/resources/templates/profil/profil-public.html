@@ -1,10 +1,286 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
+    <meta charset="utf-8">
+    <title th:text="${profil.prenom + ' ' + profil.nom + ' - ProLink'}">Profil - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 <body>
-$END$
+<div class="container-xxl bg-white p-0">
+
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Chargement...</span>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
+                <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
+                <a th:href="@{/profil/recherche}" class="nav-item nav-link">Membres</a>
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/profil/dashboard}" class="nav-item nav-link">Dashboard</a>
+                    <a th:href="@{/messages}" class="nav-item nav-link"><i class="fa fa-envelope"></i>Messages</a>
+                    <a th:href="@{/profil/notifications}" class="nav-item nav-link position-relative">
+                        <i class="fa fa-bell"></i>
+                        <span th:if="${notifNonLues != null and notifNonLues > 0}"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-badge"
+                              style="font-size:0.6rem;"
+                              th:text="${notifNonLues}">0</span>Notifications
+                    </a>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/auth/connexion}" class="nav-item nav-link">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown" th:text="${profil.prenom + ' ' + profil.nom}">Profil</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-uppercase">
+                    <li class="breadcrumb-item"><a th:href="@{/}" class="text-white">Accueil</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/profil/recherche}" class="text-white">Membres</a></li>
+                    <li class="breadcrumb-item text-white active" aria-current="page" th:text="${profil.prenom + ' ' + profil.nom}">Profil</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-4">
+
+                <!-- Colonne gauche : carte profil -->
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <img th:if="${profil.photoUrl != null}"
+                                     th:src="@{${profil.photoUrl}}"
+                                     class="rounded-circle" alt="Photo"
+                                     style="width:120px;height:120px;object-fit:cover;">
+                                <div th:if="${profil.photoUrl == null}"
+                                     class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center"
+                                     style="width:120px;height:120px;">
+                                    <i class="fa fa-user fa-4x text-secondary"></i>
+                                </div>
+                            </div>
+                            <h4 class="mb-1" th:text="${profil.prenom + ' ' + profil.nom}">Nom</h4>
+                            <p class="text-muted small mb-2">
+                                <span th:switch="${profil.role.name()}">
+                                    <span th:case="'ETUDIANT'"><i class="fa fa-user-graduate me-1"></i>Étudiant</span>
+                                    <span th:case="'FREELANCE'"><i class="fa fa-laptop me-1"></i>Freelance</span>
+                                    <span th:case="'RECRUTEUR'"><i class="fa fa-building me-1"></i>Recruteur</span>
+                                </span>
+                            </p>
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <span th:if="${profil.trustScore >= 70}" class="badge bg-success"><i class="fa fa-check-circle me-1"></i>Profil vérifié</span>
+                                <span class="badge bg-info text-dark">Trust Score: <span th:text="${profil.trustScore}">0</span>/100</span>
+                            </div>
+                            <ul class="list-unstyled text-start small">
+                                <li th:if="${profil.ville != null}" class="mb-2">
+                                    <i class="fa fa-map-marker-alt text-primary me-2"></i><span th:text="${profil.ville}">Ville</span>
+                                </li>
+                                <li th:if="${profil.email != null}" class="mb-2">
+                                    <i class="fa fa-envelope text-primary me-2"></i><span th:text="${profil.email}">Email</span>
+                                </li>
+                                <li th:if="${profil.telephone != null}" class="mb-2">
+                                    <i class="fa fa-phone text-primary me-2"></i><span th:text="${profil.telephone}">Téléphone</span>
+                                </li>
+                            </ul>
+                            <!-- Bouton envoyer un message (caché si c'est notre propre profil) -->
+                            <div sec:authorize="isAuthenticated()">
+                                <a th:if="${!estMonProfil}"
+                                   th:href="@{/messages/conversation/{id}(id=${profil.id})}"
+                                   class="btn btn-primary w-100">
+                                    <i class="fa fa-paper-plane me-2"></i>Envoyer un message
+                                </a>
+                                <a th:if="${estMonProfil}"
+                                   th:href="@{/profil/modifier}"
+                                   class="btn btn-outline-primary w-100">
+                                    <i class="fa fa-edit me-2"></i>Modifier mon profil
+                                </a>
+                            </div>
+                            <div sec:authorize="!isAuthenticated()">
+                                <a th:href="@{/auth/connexion}" class="btn btn-primary w-100">
+                                    <i class="fa fa-sign-in-alt me-2"></i>Connectez-vous pour contacter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonne droite : infos détaillées -->
+                <div class="col-lg-8 wow fadeInUp" data-wow-delay="0.2s">
+                    <!-- Carte Étudiant -->
+                    <div th:if="${profil.role.name() == 'ETUDIANT'}" class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-user-graduate text-primary me-2"></i>Profil étudiant</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Université</dt>
+                                <dd class="col-sm-8" th:text="${profil.universite ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Filière</dt>
+                                <dd class="col-sm-8" th:text="${profil.filiere ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Niveau d'étude</dt>
+                                <dd class="col-sm-8" th:text="${profil.niveauEtude ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Disponibilité</dt>
+                                <dd class="col-sm-8" th:text="${profil.disponibilite ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Compétences</dt>
+                                <dd class="col-sm-8" th:text="${profil.competences ?: 'Non renseigné'}">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Carte Freelance -->
+                    <div th:if="${profil.role.name() == 'FREELANCE'}" class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-laptop text-primary me-2"></i>Profil freelance</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Spécialité</dt>
+                                <dd class="col-sm-8" th:text="${profil.specialite ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">TJM</dt>
+                                <dd class="col-sm-8" th:text="${profil.tjm ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Années d'expérience</dt>
+                                <dd class="col-sm-8" th:text="${profil.anneesExperience ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Disponibilité</dt>
+                                <dd class="col-sm-8" th:text="${profil.disponibilite ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Compétences</dt>
+                                <dd class="col-sm-8" th:text="${profil.competences ?: 'Non renseigné'}">-</dd>
+                                <dt th:if="${profil.portfolioUrl}" class="col-sm-4">Portfolio</dt>
+                                <dd th:if="${profil.portfolioUrl}" class="col-sm-8">
+                                    <a th:href="${profil.portfolioUrl}" target="_blank" class="text-primary">
+                                        <i class="fa fa-external-link-alt me-1"></i><span th:text="${profil.portfolioUrl}"></span>
+                                    </a>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Carte Recruteur -->
+                    <div th:if="${profil.role.name() == 'RECRUTEUR'}" class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-building text-primary me-2"></i>Profil recruteur</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Entreprise</dt>
+                                <dd class="col-sm-8" th:text="${profil.nomEntreprise ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Secteur d'activité</dt>
+                                <dd class="col-sm-8" th:text="${profil.secteurActivite ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Ville</dt>
+                                <dd class="col-sm-8" th:text="${profil.villeEntreprise ?: profil.ville ?: 'Non renseigné'}">-</dd>
+                                <dt class="col-sm-4">Taille entreprise</dt>
+                                <dd class="col-sm-8" th:text="${profil.tailleEntreprise ?: 'Non renseigné'}">-</dd>
+                                <dt th:if="${profil.siteWeb}" class="col-sm-4">Site web</dt>
+                                <dd th:if="${profil.siteWeb}" class="col-sm-8">
+                                    <a th:href="${profil.siteWeb}" target="_blank" class="text-primary">
+                                        <i class="fa fa-globe me-1"></i><span th:text="${profil.siteWeb}"></span>
+                                    </a>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Offres du recruteur -->
+                    <div th:if="${profil.role.name() == 'RECRUTEUR' and not #lists.isEmpty(profil.offres)}"
+                         class="card border-0 shadow">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-briefcase text-primary me-2"></i>Offres publiées</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <a th:each="offre : ${profil.offres}"
+                               th:if="${offre.statut.name() == 'APPROUVEE'}"
+                               th:href="@{/offres/{id}(id=${offre.id})}"
+                               class="list-group-item list-group-item-action px-4 py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span th:text="${offre.titre}">Titre</span>
+                                    <small class="text-muted">
+                                        <span th:text="${offre.typeContrat}"></span>
+                                        <span th:if="${offre.lieu}"> · <span th:text="${offre.lieu}"></span></span>
+                                    </small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Documents validés (photos, CV, etc.) -->
+                    <div th:if="${not #lists.isEmpty(documentsValides)}"
+                         class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fa fa-file text-primary me-2"></i>Documents validés</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div th:each="doc : ${documentsValides}" class="col-md-4 col-sm-6">
+                                    <div class="card border-0 bg-light">
+                                        <a th:if="${#strings.startsWith(doc.typeMime, 'image/')}"
+                                           th:href="@{'/' + ${doc.cheminFichier}}"
+                                           target="_blank"
+                                           class="d-block">
+                                            <img th:src="@{'/' + ${doc.cheminFichier}}"
+                                                 th:alt="${doc.nomFichier}"
+                                                 class="card-img-top"
+                                                 style="height:140px;object-fit:cover;">
+                                        </a>
+                                        <div th:unless="${#strings.startsWith(doc.typeMime, 'image/')}"
+                                             class="text-center py-4">
+                                            <i class="fa fa-file-pdf fa-3x text-danger mb-2"></i>
+                                            <br>
+                                            <a th:href="@{'/' + ${doc.cheminFichier}}"
+                                               target="_blank"
+                                               class="small text-primary"
+                                               th:text="${doc.nomFichier}">document.pdf</a>
+                                        </div>
+                                        <div class="card-footer bg-white border-0 text-center py-2">
+                                            <small class="text-muted" th:text="${doc.typeDocument.name()}">Type</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5 text-center">
+            &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a>, Tous droits réservés.
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

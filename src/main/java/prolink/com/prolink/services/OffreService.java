@@ -41,6 +41,9 @@ public class OffreService {
         offre.setDateLimite(dto.getDateLimite());
         offre.setRecruteur(recruteur);
         offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setEntreprise(recruteur.getNomEntreprise() != null
+                ? recruteur.getNomEntreprise()
+                : recruteur.getNomComplet());
 
         return jobOfferRepository.save(offre);
     }

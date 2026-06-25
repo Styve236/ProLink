@@ -65,9 +65,6 @@
                                 style="margin-top: 7px;">Rechercher</button>
                     </form>
                 </div>
-                <div class="col-lg-6 text-center text-lg-end overflow-hidden">
-                    <img class="img-fluid" th:src="@{/img/hero-img.png}" alt="" onerror="this.style.display='none'">
-                </div>
             </div>
         </div>
     </div>
@@ -78,10 +75,10 @@
             <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Dernières offres publiées</h1>
 
             <div class="wow fadeInUp" data-wow-delay="0.3s">
-                <div class="job-item p-4 mb-4" th:each="offre : ${dernieresOffres}">
+                <div class="job-item p-4 mb-4" th:each="offre, stat : ${dernieresOffres}">
                     <div class="row g-4">
                         <div class="col-sm-12 col-md-8 d-flex align-items-center">
-                            <img class="flex-shrink-0 img-fluid border rounded" th:src="@{/img/com-logo-1.jpg}" alt="" style="width: 80px; height: 80px;">
+                            <img class="flex-shrink-0 img-fluid border rounded" th:src="@{|/img/com-logo-${stat.index % 5 + 1}.jpg|}" alt="" style="width: 80px; height: 80px;">
                             <div class="text-start ps-4">
                                 <h5 class="mb-3">
                                     <a th:href="@{/offres/{id}(id=${offre.id})}" th:text="${offre.titre}" class="text-dark text-decoration-none">Titre</a>
@@ -102,6 +99,55 @@
 
                 <div class="text-center">
                     <a th:href="@{/offres}" class="btn btn-primary py-3 px-5">Voir toutes les offres</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Témoignages -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Ce que disent nos utilisateurs</h1>
+            <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
+                <div class="testimonial-item bg-light rounded p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <img class="flex-shrink-0 img-fluid border rounded-circle" th:src="@{/img/testimonial-1.jpg}" alt="" style="width: 80px; height: 80px;">
+                        <div class="ps-3">
+                            <h5 class="mb-1">Marie K.</h5>
+                            <small>Freelance développeuse</small>
+                        </div>
+                    </div>
+                    <p class="mb-0">"Grâce à ProLink, j'ai trouvé ma première mission freelance en moins d'une semaine. La plateforme est simple et les recruteurs sont sérieux."</p>
+                </div>
+                <div class="testimonial-item bg-light rounded p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <img class="flex-shrink-0 img-fluid border rounded-circle" th:src="@{/img/testimonial-2.jpg}" alt="" style="width: 80px; height: 80px;">
+                        <div class="ps-3">
+                            <h5 class="mb-1">David M.</h5>
+                            <small>Recruteur chez TechCorp</small>
+                        </div>
+                    </div>
+                    <p class="mb-0">"ProLink nous a permis de trouver rapidement des candidats qualifiés. La validation des documents garantit la fiabilité des profils."</p>
+                </div>
+                <div class="testimonial-item bg-light rounded p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <img class="flex-shrink-0 img-fluid border rounded-circle" th:src="@{/img/testimonial-3.jpg}" alt="" style="width: 80px; height: 80px;">
+                        <div class="ps-3">
+                            <h5 class="mb-1">Aminata S.</h5>
+                            <small>Étudiante en stage</small>
+                        </div>
+                    </div>
+                    <p class="mb-0">"J'ai décroché mon stage de fin d'études grâce à ProLink. La messagerie intégrée m'a permis d'échanger directement avec l'employeur."</p>
+                </div>
+                <div class="testimonial-item bg-light rounded p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <img class="flex-shrink-0 img-fluid border rounded-circle" th:src="@{/img/testimonial-4.jpg}" alt="" style="width: 80px; height: 80px;">
+                        <div class="ps-3">
+                            <h5 class="mb-1">Jean-Luc B.</h5>
+                            <small>Chef de projet</small>
+                        </div>
+                    </div>
+                    <p class="mb-0">"Une plateforme bien conçue qui répond aux vrais besoins du marché. Le système de notifications temps réel est très pratique."</p>
                 </div>
             </div>
         </div>

@@ -11,9 +11,12 @@ import prolink.com.prolink.entities.Message;
 import prolink.com.prolink.entities.User;
 import prolink.com.prolink.repositories.MessageRepository;
 import prolink.com.prolink.repositories.UserRepository;
+import prolink.com.prolink.services.NotificationService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/messages")
@@ -22,42 +25,32 @@ public class MessageController {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    // BOITE DE RÉCEPTION
     @GetMapping
     public String boiteReception(@AuthenticationPrincipal UserDetails userDetails,
                                  Model model) {
 
         User moi = getUtilisateur(userDetails.getUsername());
+        List<User> contacts = getContacts(moi.getId());
 
-        // Messages reçus — triés par date décroissante
-        List<Message> messagesRecus = messageRepository
-                .findByDestinataireOrderByDateEnvoiDesc(moi);
-
-        // Messages envoyés
-        List<Message> messagesEnvoyes = messageRepository
-                .findByExpediteurOrderByDateEnvoiDesc(moi);
-
-        model.addAttribute("messagesRecus", messagesRecus);
-        model.addAttribute("messagesEnvoyes", messagesEnvoyes);
+        model.addAttribute("contacts", contacts);
+        model.addAttribute("moi", moi);
         model.addAttribute("nonLus", messageRepository.countByDestinataireAndLuFalse(moi));
+        model.addAttribute("messagesRecus", messageRepository.findByDestinataireOrderByDateEnvoiDesc(moi));
 
         return "messages/boite-reception";
     }
 
-    // CONVERSATION AVEC UN UTILISATEUR
     @GetMapping("/conversation/{idDestinataire}")
     public String afficherConversation(@PathVariable Long idDestinataire,
                                        @AuthenticationPrincipal UserDetails userDetails,
                                        Model model) {
         User moi = getUtilisateur(userDetails.getUsername());
+
         User destinataire = getUtilisateurParId(idDestinataire);
+        List<Message> conversation = messageRepository.findConversation(moi.getId(), idDestinataire);
 
-        // Récupère tous les messages entre les deux utilisateurs
-        List<Message> conversation = messageRepository
-                .findConversation(moi.getId(), idDestinataire);
-
-        // Marque les messages reçus comme lus
         conversation.stream()
                 .filter(m -> m.getDestinataire().getId().equals(moi.getId()) && !m.isLu())
                 .forEach(m -> {
@@ -66,14 +59,18 @@ public class MessageController {
                     messageRepository.save(m);
                 });
 
+        List<User> contacts = getContacts(moi.getId());
+
         model.addAttribute("conversation", conversation);
         model.addAttribute("destinataire", destinataire);
         model.addAttribute("moi", moi);
+        model.addAttribute("contacts", contacts);
+        model.addAttribute("nonLus", messageRepository.countByDestinataireAndLuFalse(moi));
+        model.addAttribute("peutEnvoyer", peutEnvoyerMessage(moi, destinataire));
 
-        return "messages/conversation";
+        return "messages/boite-reception";
     }
 
-    // ENVOYER UN MESSAGE
     @PostMapping("/envoyer/{idDestinataire}")
     public String envoyerMessage(@PathVariable Long idDestinataire,
                                  @RequestParam String contenu,
@@ -81,18 +78,22 @@ public class MessageController {
                                  RedirectAttributes redirectAttributes) {
 
         if (contenu == null || contenu.isBlank()) {
-            redirectAttributes.addFlashAttribute("erreur",
-                    "Le message ne peut pas être vide.");
+            redirectAttributes.addFlashAttribute("erreur", "Le message ne peut pas être vide.");
             return "redirect:/messages/conversation/" + idDestinataire;
         }
 
         User expediteur = getUtilisateur(userDetails.getUsername());
         User destinataire = getUtilisateurParId(idDestinataire);
 
-        // Empêche d'envoyer un message à soi-même
-        if (expediteur.getId().equals(idDestinataire)) {
+        if (!peutEnvoyerMessage(expediteur, destinataire)) {
             redirectAttributes.addFlashAttribute("erreur",
-                    "Vous ne pouvez pas vous envoyer un message.");
+                    "Vous devez attendre que " + destinataire.getPrenom()
+                    + " lise votre message et vous réponde avant d'en envoyer un autre.");
+            return "redirect:/messages/conversation/" + idDestinataire;
+        }
+
+        if (expediteur.getId().equals(idDestinataire)) {
+            redirectAttributes.addFlashAttribute("erreur", "Vous ne pouvez pas vous envoyer un message.");
             return "redirect:/messages";
         }
 
@@ -102,20 +103,18 @@ public class MessageController {
         message.setContenu(contenu.trim());
         messageRepository.save(message);
 
+        notificationService.notifierNouveauMessage(expediteur, destinataire, contenu.trim());
+
         return "redirect:/messages/conversation/" + idDestinataire;
     }
 
-    // NOUVEAU MESSAGE — formulaire
-    @GetMapping("/nouveau/{idDestinataire}")
-    public String nouveauMessage(@PathVariable Long idDestinataire,
-                                 Model model,
-                                 @AuthenticationPrincipal UserDetails userDetails) {
-        User destinataire = getUtilisateurParId(idDestinataire);
-        model.addAttribute("destinataire", destinataire);
-        return "messages/nouveau-message";
+    private List<User> getContacts(Long userId) {
+        Set<User> contactsSet = new HashSet<>();
+        contactsSet.addAll(messageRepository.findExpediteurs(userId));
+        contactsSet.addAll(messageRepository.findDestinataires(userId));
+        return List.copyOf(contactsSet);
     }
 
-    // UTILITAIRES PRIVÉS
     private User getUtilisateur(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -126,5 +125,14 @@ public class MessageController {
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Utilisateur introuvable : " + id));
+    }
+
+    private boolean peutEnvoyerMessage(User expediteur, User destinataire) {
+        long envoyeParMoi = messageRepository
+                .countByExpediteurAndDestinataire(expediteur, destinataire);
+        long envoyeParLui = messageRepository
+                .countByExpediteurAndDestinataire(destinataire, expediteur);
+        // Premier message toujours autorisé, ou si le destinataire a déjà répondu
+        return envoyeParMoi == 0 || envoyeParLui > 0;
     }
 }

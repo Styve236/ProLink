@@ -11,29 +11,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import prolink.com.prolink.dto.request.InscriptionDto;
 import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.services.AuthService;
+import prolink.com.prolink.services.OffreService;
 
 @Controller
 public class AuthController {
 
     private final AuthService authService;
+    private final OffreService offreService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, OffreService offreService) {
         this.authService = authService;
+        this.offreService = offreService;
     }
 
     @GetMapping({"/", "/index"})
-    public String accueil(@AuthenticationPrincipal UserDetails userDetails)
+    public String accueil(@AuthenticationPrincipal UserDetails userDetails, Model model)
     {
         if (userDetails != null){
             return "redirect:/profil/dashboard";
         }
 
+        model.addAttribute("dernieresOffres", offreService.getOffresPubliques());
         return "index";
     }
     @GetMapping("/auth/connexion")
     public String afficherConnexion(
             @RequestParam(required = false) String erreur,
             @RequestParam(required = false) String deconnecte,
+            @RequestParam(required = false) String redirect,
             @AuthenticationPrincipal UserDetails userDetails,
             Model model) {
 
@@ -46,6 +51,9 @@ public class AuthController {
         }
         if (deconnecte != null) {
             model.addAttribute("succes", "Vous avez été déconnecté avec succès.");
+        }
+        if (redirect != null && !redirect.isBlank()) {
+            model.addAttribute("redirect", redirect);
         }
 
         return "auth/connexion";

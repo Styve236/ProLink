@@ -41,14 +41,6 @@
         <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
         <a th:href="@{/profil/dashboard}" class="nav-item nav-link">Dashboard</a>
         <a th:href="@{/profil/mon-profil}" class="nav-item nav-link">Mon profil</a>
-        <a th:href="@{/messages}" class="nav-item nav-link"><i class="fa fa-envelope"></i>Messages</a>
-        <a th:href="@{/profil/notifications}" class="nav-item nav-link position-relative">
-            <i class="fa fa-bell"></i>
-            <span th:if="${notifNonLues > 0}"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-badge"
-                  style="font-size:0.6rem;"
-                  th:text="${notifNonLues}">0</span>Notifications
-        </a>
         <form th:action="@{/auth/deconnexion}" method="post">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <button type="submit" class="btn btn-link nav-link text-danger p-0">
@@ -90,7 +82,7 @@
           <span th:if="${notifNonLues > 0}" class="badge bg-danger ms-2" th:text="${notifNonLues} + ' non lue(s)'"></span>
         </h4>
         <form th:if="${notifNonLues > 0}"
-              th:action="@{/notifications/lire-tout}" method="post">
+              th:action="@{/profil/notifications/lire-tout}" method="post">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <button type="submit" class="btn btn-outline-secondary btn-sm">
             <i class="fa fa-check-double me-1"></i>Tout marquer comme lu
@@ -120,17 +112,14 @@
                                 <span th:switch="${notif.type.name()}">
                                     <span th:case="'CANDIDATURE_ACCEPTEE'" class="text-success fs-4"><i class="fa fa-check-circle"></i></span>
                                     <span th:case="'CANDIDATURE_REFUSEE'" class="text-danger fs-4"><i class="fa fa-times-circle"></i></span>
-                                    <span th:case="'CANDIDATURE_RECUE'" class="text-primary fs-4"><i class="fa fa-paper-plane"></i></span>
-                                    <span th:case="'DEMANDE_CONNEXION'" class="text-info fs-4"><i class="fa fa-user-plus"></i></span>
+                                    <span th:case="'NOUVELLE_CANDIDATURE'" class="text-primary fs-4"><i class="fa fa-paper-plane"></i></span>
+                                    <span th:case="'NOUVELLE_CONNEXION'" class="text-info fs-4"><i class="fa fa-user-plus"></i></span>
                                     <span th:case="'NOUVEAU_MESSAGE'" class="text-warning fs-4"><i class="fa fa-envelope"></i></span>
-                                    <span th:case="'OFFRE_APPROUVEE'" class="text-success fs-4"><i class="fa fa-briefcase"></i></span>
-                                    <span th:case="'DOCUMENT_VALIDE'" class="text-success fs-4"><i class="fa fa-file-check"></i></span>
-                                    <span th:case="'DOCUMENT_REJETE'" class="text-danger fs-4"><i class="fa fa-file-times"></i></span>
                                     <span th:case="*" class="text-secondary fs-4"><i class="fa fa-bell"></i></span>
                                 </span>
               </div>
               <div class="flex-grow-1">
-                <p class="mb-1" th:text="${notif.contenu}">Message de notification</p>
+                <p class="mb-1" th:text="${notif.message}">Message de notification</p>
                 <small class="text-muted">
                   <i class="far fa-clock me-1"></i>
                   <span th:text="${#temporals.format(notif.dateCreation, 'dd/MM/yyyy à HH:mm')}">Date</span>

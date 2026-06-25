@@ -119,6 +119,24 @@ public class DocumentService {
     }
 
     /**
+     * Récupère les documents validés d'un utilisateur (pour affichage public).
+     */
+    @Transactional(readOnly = true)
+    public List<Document> getDocumentsValides(User utilisateur) {
+        return documentRepository.findByUtilisateur(utilisateur).stream()
+                .filter(d -> d.getStatutValidation() == StatutValidation.VALIDE)
+                .toList();
+    }
+
+    /**
+     * Récupère un document par son ID (pour téléchargement admin).
+     */
+    public Document getDocumentParId(Long id) {
+        return documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Document introuvable : " + id));
+    }
+
+    /**
      * Vérifie si l'utilisateur a au moins un document validé.
      * Utile pour afficher un badge "Profil vérifié".
      */

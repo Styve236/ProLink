@@ -1,10 +1,243 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
+    <meta charset="utf-8">
+    <title>Chat avec ${destinataire.nomComplet} - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link th:href="@{/img/favicon.ico}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .chat-container { height: calc(100vh - 160px); min-height: 500px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; background: #f8f9fa; }
+        .chat-bubble { max-width: 75%; margin-bottom: 0.75rem; padding: 0.6rem 1rem; border-radius: 1rem; word-wrap: break-word; }
+        .chat-bubble.sent { margin-left: auto; background: var(--primary); color: #fff; border-bottom-right-radius: 0.25rem; }
+        .chat-bubble.received { margin-right: auto; background: #fff; border: 1px solid #dee2e6; border-bottom-left-radius: 0.25rem; }
+        .chat-time { font-size: 0.65rem; opacity: 0.7; display: block; margin-top: 0.2rem; }
+        .chat-input-area { padding: 1rem; border-top: 1px solid #dee2e6; background: #fff; }
+        .typing-indicator { font-size: 0.8rem; color: #6c757d; font-style: italic; padding: 0.25rem 1rem; min-height: 1.5rem; }
+        .connection-status { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .connection-status.online { background: #28a745; }
+        .connection-status.offline { background: #dc3545; }
+    </style>
 </head>
+
 <body>
-$END$
+<div class="container-xxl bg-white p-0">
+
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Connexion au chat...</span>
+        </div>
+    </div>
+
+    <!-- Chat container -->
+    <div class="container-fluid p-0 d-flex flex-column chat-container">
+        <!-- Header -->
+        <div class="bg-white shadow-sm p-3 d-flex align-items-center border-bottom">
+            <a th:href="@{/messages}" class="btn btn-sm btn-outline-secondary me-3">
+                <i class="fa fa-arrow-left"></i>
+            </a>
+            <img th:if="${destinataire.photoUrl != null}" th:src="${destinataire.photoUrl}" class="rounded-circle me-3" width="44" height="44" style="object-fit:cover">
+            <img th:if="${destinataire.photoUrl == null}" th:src="@{/img/user.jpg}" class="rounded-circle me-3" width="44" height="44" style="object-fit:cover">
+            <div class="flex-grow-1">
+                <h6 class="mb-0" th:text="${destinataire.nomComplet}">Nom</h6>
+                <small class="text-muted">
+                    <span class="connection-status online me-1" id="statusDot"></span>
+                    <span id="statusText">En ligne</span>
+                </small>
+            </div>
+            <a th:href="@{/messages/conversation/{id}(id=${destinataire.id})}" class="btn btn-sm btn-outline-primary" title="Messagerie">
+                <i class="fa fa-envelope me-1"></i>Messages
+            </a>
+            <a th:href="@{/profil/{id}(id=${destinataire.id})}" class="btn btn-sm btn-outline-secondary ms-2" title="Voir le profil">
+                <i class="fa fa-user"></i>
+            </a>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <div th:if="${historique == null || historique.isEmpty()}" class="text-center text-muted py-5">
+                <i class="fa fa-comment-dots fa-3x mb-3 d-block"></i>
+                <h6>Début de la conversation</h6>
+                <p class="small">Envoyez votre premier message en temps réel !</p>
+            </div>
+
+            <div th:each="msg : ${historique}">
+                <div class="d-flex"
+                     th:classappend="${msg.expediteur.id == moi.id} ? 'justify-content-end' : 'justify-content-start'">
+                    <div class="chat-bubble"
+                         th:classappend="${msg.expediteur.id == moi.id} ? 'sent' : 'received'">
+                        <p class="mb-0 small" th:text="${msg.contenu}">Message</p>
+                        <span class="chat-time" th:text="${#temporals.format(msg.horodatage, 'HH:mm')}">Heure</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="typing-indicator px-4" id="typingIndicator"></div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <div th:if="${!peutEnvoyer}" class="alert alert-warning text-center mb-0 py-2 small">
+                <i class="fa fa-lock me-1"></i>
+                <span th:text="'Vous avez déjà envoyé un message à ' + ${destinataire.prenom} + '. Attendez sa réponse.'">Blocage</span>
+            </div>
+            <div th:if="${peutEnvoyer}" class="input-group">
+                <input type="text" id="messageInput" class="form-control" placeholder="Écrivez votre message..."
+                       style="border-radius: 20px 0 0 20px;" maxlength="2000">
+                <button id="sendBtn" class="btn btn-primary px-4" style="border-radius: 0 20px 20px 0;">
+                    <i class="fa fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+    var roomId = '[[${roomId}]]';
+    var moiId = [[${moi.id}]];
+    var moiNom = '[[${moi.nomComplet}]]';
+    var destId = [[${destinataire.id}]];
+
+    var stompClient = null;
+    var chatMessages = document.getElementById('chatMessages');
+    var messageInput = document.getElementById('messageInput');
+    var sendBtn = document.getElementById('sendBtn');
+    var typingIndicator = document.getElementById('typingIndicator');
+    var typingTimer = null;
+
+    // Connexion WebSocket
+    function connecter() {
+        var socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            document.getElementById('spinner').classList.remove('show');
+            setStatus(true);
+
+            // S'abonner au topic de la room
+            stompClient.subscribe('/topic/chat.' + roomId, function(message) {
+                var msg = JSON.parse(message.body);
+
+                // Ignorer les indicateurs de frappe dans le flux principal
+                if (msg.type === 'FRAPPE') {
+                    afficherFrappe(msg.expediteurNom);
+                    return;
+                }
+
+                // Nouveau message
+                var isMoi = parseInt(msg.expediteurId) === moiId;
+                ajouterMessage(msg.contenu, msg.horodatage, isMoi);
+            });
+
+            // S'abonner aux erreurs privées
+            stompClient.subscribe('/user/queue/erreurs', function(message) {
+                var err = JSON.parse(message.body);
+                alert(err.erreur);
+            });
+        }, function() {
+            setStatus(false);
+            setTimeout(connecter, 3000);
+        });
+    }
+
+    // Envoyer un message
+    function envoyerMessage() {
+        var contenu = messageInput.value.trim();
+        if (!contenu || !stompClient) return;
+
+        stompClient.send('/app/chat.envoyer', {}, JSON.stringify({
+            contenu: contenu,
+            roomId: roomId
+        }));
+
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+    }
+
+    // Ajouter un message dans le DOM
+    function ajouterMessage(contenu, horodatage, isMoi) {
+        var div = document.createElement('div');
+        div.className = 'd-flex ' + (isMoi ? 'justify-content-end' : 'justify-content-start');
+
+        var heure = horodatage ? horodatage.substring(11, 16) : new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+        div.innerHTML = '<div class="chat-bubble ' + (isMoi ? 'sent' : 'received') + '">' +
+            '<p class="mb-0 small">' + escapeHtml(contenu) + '</p>' +
+            '<span class="chat-time">' + heure + '</span></div>';
+
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Indicateur de frappe
+    function afficherFrappe(nom) {
+        typingIndicator.textContent = nom + ' est en train d\'écrire...';
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+            typingIndicator.textContent = '';
+        }, 2000);
+    }
+
+    // Notifier la frappe
+    function notifierFrappe() {
+        if (stompClient) {
+            stompClient.send('/app/chat.frappe', {}, JSON.stringify({
+                roomId: roomId
+            }));
+        }
+    }
+
+    // Statut de connexion
+    function setStatus(online) {
+        var dot = document.getElementById('statusDot');
+        var text = document.getElementById('statusText');
+        dot.className = 'connection-status ' + (online ? 'online' : 'offline');
+        text.textContent = online ? 'Connecté' : 'Déconnecté';
+    }
+
+    // Échappement HTML
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+
+    // Events
+    sendBtn.addEventListener('click', envoyerMessage);
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            envoyerMessage();
+        }
+    });
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        notifierFrappe();
+    });
+
+    // Scroll en bas au chargement
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Connexion
+    connecter();
+</script>
 </body>
 </html>

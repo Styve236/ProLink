@@ -1,0 +1,133 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< ProLink.com:ProLink >-------------------------
+[INFO] Building ProLink 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.6:run (default-cli) > test-compile @ ProLink >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ ProLink ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 160 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ ProLink ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ ProLink ---
+[INFO] skip non existing resourceDirectory C:\Users\steve authentique\Desktop\semestres_4\ProLink\ProLink\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.0:testCompile (default-testCompile) @ ProLink ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 1 source file with javac [debug parameters release 25] to target\test-classes
+[INFO] 
+[INFO] <<< spring-boot:3.5.6:run (default-cli) < test-compile @ ProLink <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.6:run (default-cli) @ ProLink ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.6)
+
+2026-06-25T10:17:57.102+01:00  INFO 16576 --- [ProLink] [  restartedMain] prolink.com.prolink.ProLinkApplication   : Starting ProLinkApplication using Java 25 with PID 16576 (C:\Users\steve authentique\Desktop\semestres_4\ProLink\ProLink\target\classes started by steve authentique in C:\Users\steve authentique\Desktop\semestres_4\ProLink\ProLink)
+2026-06-25T10:17:57.108+01:00  INFO 16576 --- [ProLink] [  restartedMain] prolink.com.prolink.ProLinkApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-06-25T10:17:57.336+01:00  INFO 16576 --- [ProLink] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-06-25T10:17:57.356+01:00  INFO 16576 --- [ProLink] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-06-25T10:18:00.943+01:00  INFO 16576 --- [ProLink] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-25T10:18:01.269+01:00  INFO 16576 --- [ProLink] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 305 ms. Found 11 JPA repository interfaces.
+2026-06-25T10:18:04.916+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-25T10:18:04.955+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-25T10:18:04.956+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.46]
+2026-06-25T10:18:05.142+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-25T10:18:05.144+01:00  INFO 16576 --- [ProLink] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 7777 ms
+2026-06-25T10:18:05.848+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-25T10:18:06.042+01:00  INFO 16576 --- [ProLink] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.29.Final
+2026-06-25T10:18:06.163+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-25T10:18:07.329+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-25T10:18:07.442+01:00  INFO 16576 --- [ProLink] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-25T10:18:07.983+01:00  INFO 16576 --- [ProLink] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@15b6b543
+2026-06-25T10:18:07.990+01:00  INFO 16576 --- [ProLink] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-25T10:18:08.219+01:00  WARN 16576 --- [ProLink] [  restartedMain] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-06-25T10:18:08.315+01:00  INFO 16576 --- [ProLink] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 5.5.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-25T10:18:13.338+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table candidatures 
+       modify column statut enum ('ACCEPTEE','EN_ATTENTE','REFUSEE') not null
+Hibernate: 
+    alter table documents 
+       modify column statut_validation enum ('EN_ATTENTE','REJETE','VALIDE') not null
+Hibernate: 
+    alter table documents 
+       modify column type_document enum ('AUTRE','CARTE_ETUDIANT','CV','KBIS_ENTREPRISE','PORTFOLIO','RELEVE_NOTES') not null
+Hibernate: 
+    alter table notifications 
+       modify column type enum ('CANDIDATURE_ACCEPTEE','CANDIDATURE_RECUE','CANDIDATURE_REFUSEE','DEMANDE_CONNEXION','DOCUMENT_REJETE','DOCUMENT_VALIDE','NOUVEAU_MESSAGE','OFFRE_APPROUVEE','TRUST_SCORE_MIS_A_JOUR') not null
+Hibernate: 
+    alter table offres 
+       modify column statut enum ('APPROUVEE','ARCHIVEE','EN_ATTENTE') not null
+Hibernate: 
+    alter table users 
+       modify column role enum ('ADMIN','ETUDIANT','FREELANCE','RECRUTEUR') not null
+Hibernate: 
+    alter table users 
+       modify column statut enum ('ACTIF','ARCHIVE','EN_ATTENTE','SUSPENDU') not null
+2026-06-25T10:18:13.896+01:00  INFO 16576 --- [ProLink] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-25T10:18:15.173+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-25T10:18:25.415+01:00  INFO 16576 --- [ProLink] [  restartedMain] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-06-25T10:18:25.417+01:00  WARN 16576 --- [ProLink] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2026-06-25T10:18:35.570+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2026-06-25T10:18:47.716+01:00  WARN 16576 --- [ProLink] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-06-25T10:18:47.993+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-06-25T10:18:47.997+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@75931223]]
+2026-06-25T10:18:48.013+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-06-25T10:18:48.044+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-06-25T10:18:48.044+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@75931223]]
+2026-06-25T10:18:48.045+01:00  INFO 16576 --- [ProLink] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-06-25T10:18:48.047+01:00  WARN 16576 --- [ProLink] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-06-25T10:18:48.065+01:00  INFO 16576 --- [ProLink] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-25T10:18:48.075+01:00  INFO 16576 --- [ProLink] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-25T10:18:48.292+01:00  INFO 16576 --- [ProLink] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-25T10:18:48.513+01:00  INFO 16576 --- [ProLink] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-06-25T10:18:48.818+01:00 ERROR 16576 --- [ProLink] [  restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:17 min
+[INFO] Finished at: 2026-06-25T10:18:51+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.5.6:run (default-cli) on project ProLink: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

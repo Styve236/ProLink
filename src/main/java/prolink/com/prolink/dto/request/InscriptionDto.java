@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * DTO reçu depuis le formulaire d'inscription Thymeleaf.
@@ -51,4 +52,7 @@ public class InscriptionDto {
     // Champs spécifiques RECRUTEUR
     private String nomEntreprise;
     private String secteurActivite;
+
+    // Photo de profil (optionnelle)
+    private MultipartFile photo;
 }

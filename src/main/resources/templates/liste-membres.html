@@ -1,10 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>Membres - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 <body>
+<div class="container-xxl bg-white p-0">
 
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Chargement...</span>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
+                <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
+                <a th:href="@{/profil/recherche}" class="nav-item nav-link">Recherche</a>
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/profil/dashboard}" class="nav-item nav-link">Dashboard</a>
+                    <a th:href="@{/messages}" class="nav-item nav-link"><i class="fa fa-envelope"></i>Messages</a>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/auth/connexion}" class="nav-item nav-link">Connexion</a>
+                    <a th:href="@{/auth/inscription}" class="nav-item nav-link">Inscription</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Membres ProLink</h1>
+            <p class="text-white fs-5">Découvrez les professionnels et entreprises sur la plateforme</p>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <form th:action="@{/profil/recherche}" method="get" class="d-flex mx-auto" style="max-width:500px;">
+                    <input type="text" name="terme" class="form-control py-3" placeholder="Rechercher un membre..." required>
+                    <button type="submit" class="btn btn-primary py-3 px-4 ms-2">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${#lists.isEmpty(membres)}" class="text-center py-5">
+                <i class="fa fa-users fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted">Aucun membre pour le moment</h4>
+            </div>
+
+            <div class="row g-4">
+                <div th:each="membre : ${membres}" class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <img th:if="${membre.photoUrl != null}"
+                                     th:src="@{${membre.photoUrl}}"
+                                     class="rounded-circle" alt="" style="width:80px;height:80px;object-fit:cover;">
+                                <div th:if="${membre.photoUrl == null}"
+                                     class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center"
+                                     style="width:80px;height:80px;">
+                                    <i class="fa fa-user fa-2x text-secondary"></i>
+                                </div>
+                            </div>
+                            <h5 class="mb-1" th:text="${membre.nomComplet}">Nom</h5>
+                            <p class="small text-muted mb-2">
+                                <span th:switch="${membre.role.name()}">
+                                    <span th:case="'ETUDIANT'"><i class="fa fa-user-graduate me-1"></i>Étudiant</span>
+                                    <span th:case="'FREELANCE'"><i class="fa fa-laptop me-1"></i>Freelance</span>
+                                    <span th:case="'RECRUTEUR'"><i class="fa fa-building me-1"></i>Recruteur</span>
+                                    <span th:case="'ADMIN'"><i class="fa fa-shield-alt me-1"></i>Admin</span>
+                                </span>
+                            </p>
+                            <p th:if="${membre.ville != null}" class="small text-muted mb-3">
+                                <i class="fa fa-map-marker-alt me-1"></i><span th:text="${membre.ville}">Ville</span>
+                            </p>
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <span th:if="${membre.trustScore >= 70}" class="badge bg-success">Vérifié</span>
+                            </div>
+                            <a th:href="@{/profil/{id}(id=${membre.id})}" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fa fa-eye me-1"></i>Voir le profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5 text-center">
+            &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a>, Tous droits réservés.
+        </div>
+    </div>
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

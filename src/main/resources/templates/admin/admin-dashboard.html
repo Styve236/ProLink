@@ -43,7 +43,7 @@
                 <a th:href="@{/admin/users}" class="nav-item nav-link text-white-50">
                     <i class="fa fa-users me-1"></i>Utilisateurs
                 </a>
-                <a th:href="@{/admin/offres}" class="nav-item nav-link text-white-50">
+                <a th:href="@{/admin/offres/pending}" class="nav-item nav-link text-white-50">
                     <i class="fa fa-briefcase me-1"></i>Offres
                 </a>
                 <!-- CORRECT — formulaire POST avec token CSRF -->
@@ -153,7 +153,7 @@
                                 <span th:if="${stats.enAttente > 0}"
                                       class="badge bg-danger ms-2" th:text="${stats.enAttente}"></span>
                             </a>
-                            <a th:href="@{/admin/offres}" class="btn btn-outline-primary">
+                            <a th:href="@{/admin/offres/pending}" class="btn btn-outline-primary">
                                 <i class="fa fa-briefcase me-2"></i>Valider les offres
                             </a>
                             <a th:href="@{/admin/documents}" class="btn btn-outline-secondary">
@@ -161,6 +161,12 @@
                                 <span th:if="${stats.documentsEnAttente > 0}"
                                       class="badge bg-danger ms-2" th:text="${stats.documentsEnAttente}"></span>
                             </a>
+                            <form th:action="@{/admin/test-email}" method="post" class="d-inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-outline-success w-100">
+                                    <i class="fa fa-envelope me-2"></i>Tester l'envoi d'email
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
