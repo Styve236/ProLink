@@ -281,6 +281,15 @@ public class ProfilController {
         return "notification";
     }
 
+    @PostMapping("/notifications/lire-tout")
+    public String marquerToutesLues(@AuthenticationPrincipal UserDetails userDetails,
+                                    RedirectAttributes redirectAttributes) {
+        User user = profilService.getProfilComplet(userDetails.getUsername());
+        notificationService.marquerToutesLues(user);
+        redirectAttributes.addFlashAttribute("succes", "Toutes les notifications ont été marquées comme lues.");
+        return "redirect:/profil/notifications";
+    }
+
     // RECHERCHE DE PROFILS
     @GetMapping("/recherche")
     public String rechercherProfils(@RequestParam(required = false) String terme,

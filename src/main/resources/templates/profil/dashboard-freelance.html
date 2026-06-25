@@ -191,6 +191,42 @@
                 </div>
 
             </div>
+
+            <!-- Documents -->
+            <div class="row g-4 mt-4 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="col-12">
+                    <div class="card border-0 shadow">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fa fa-file-alt text-primary me-2"></i>Mes documents</h5>
+                            <a th:href="@{/profil/documents}" class="btn btn-sm btn-outline-primary">Gérer</a>
+                        </div>
+                        <div class="card-body px-4 py-3">
+                            <div th:if="${#lists.isEmpty(documents)}" class="text-center py-3">
+                                <i class="fa fa-file fa-2x text-muted mb-2"></i>
+                                <p class="text-muted small mb-2">Aucun document déposé</p>
+                                <a th:href="@{/profil/documents}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-upload me-1"></i>Déposer un CV
+                                </a>
+                            </div>
+                            <ul th:if="${!#lists.isEmpty(documents)}" class="list-unstyled mb-0">
+                                <li th:each="doc : ${documents}" class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <div>
+                                        <i class="fa fa-file-pdf text-danger me-2"></i>
+                                        <span class="small" th:text="${doc.nomFichier}">fichier.pdf</span>
+                                    </div>
+                                    <span th:switch="${doc.statutValidation.name()}">
+                                        <span th:case="'EN_ATTENTE'" class="badge bg-warning text-dark">En attente</span>
+                                        <span th:case="'VALIDE'" class="badge bg-success">Validé</span>
+                                        <span th:case="'REJETE'" class="badge bg-danger">Rejeté</span>
+                                        <span th:case="*" class="badge bg-secondary" th:text="${doc.statutValidation}"></span>
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
