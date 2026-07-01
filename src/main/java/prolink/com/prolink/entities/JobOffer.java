@@ -1,6 +1,5 @@
 package prolink.com.prolink.entities;
 
-import lombok.Data;
 import prolink.com.prolink.enums.StatutOffre;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +15,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "offres")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class JobOffer {
 

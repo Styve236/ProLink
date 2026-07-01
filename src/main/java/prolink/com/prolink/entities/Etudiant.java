@@ -1,7 +1,6 @@
 package prolink.com.prolink.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +21,8 @@ import java.util.List;
 @Entity
 @Table(name = "etudiants")
 @PrimaryKeyJoinColumn(name = "id")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Etudiant extends User {
 

@@ -1,13 +1,11 @@
 package prolink.com.prolink.entities;
 
 
-import lombok.Data;
 import prolink.com.prolink.enums.StatutCandidature;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import prolink.com.prolink.enums.StatutCandidature;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +30,6 @@ import java.time.LocalDateTime;
 )
 @Getter
 @Setter
-@Data
 @NoArgsConstructor
 public class Candidature {
 

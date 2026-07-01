@@ -37,7 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "Aucun compte trouvé avec l'email : " + email
+                        "Identifiants invalides."
                 ));
 
         boolean compteAutorise = user.getStatut() != StatutCompte.SUSPENDU

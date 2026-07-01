@@ -1,6 +1,5 @@
 package prolink.com.prolink.entities;
 
-import lombok.Data;
 import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.enums.StatutCompte;
 import jakarta.persistence.*;
@@ -27,7 +26,8 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class User {
 

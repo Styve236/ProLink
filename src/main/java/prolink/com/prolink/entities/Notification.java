@@ -1,6 +1,5 @@
 package prolink.com.prolink.entities;
 
-import lombok.Data;
 import prolink.com.prolink.enums.TypeNotification;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,7 +21,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "notifications")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Notification {
 

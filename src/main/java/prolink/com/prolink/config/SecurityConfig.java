@@ -54,7 +54,11 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             String redirect = request.getParameter("redirect");
             if (redirect != null && !redirect.isBlank()
-                    && (redirect.startsWith("/") && !redirect.startsWith("//"))) {
+                    && redirect.startsWith("/")
+                    && !redirect.startsWith("//")
+                    && !redirect.contains(":")
+                    && !redirect.contains("\\")
+                    && redirect.length() < 200) {
                 response.sendRedirect(redirect);
             } else {
                 response.sendRedirect("/profil/dashboard");

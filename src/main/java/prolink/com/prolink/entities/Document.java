@@ -1,11 +1,9 @@
 package prolink.com.prolink.entities;
 
-import lombok.Data;
 import prolink.com.prolink.enums.StatutValidation;
 import prolink.com.prolink.enums.TypeDocument;
 import jakarta.persistence.*;
 import lombok.Getter;
-import prolink.com.prolink.enums.TypeDocument;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -24,7 +22,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "documents")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Document {
 

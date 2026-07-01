@@ -48,10 +48,10 @@ public class EmailService {
             message.setSubject(sujet);
             message.setText(contenu);
             mailSender.send(message);
-            log.info("EMAIL envoyé avec succès à {}", to);
+            log.info("EMAIL envoyé avec succès à {}", masquerEmail(to));
             return true;
         } catch (Exception e) {
-            log.error("ERREUR ENVOI EMAIL à {} : {} (type: {})", to, e.getMessage(), e.getClass().getSimpleName());
+            log.error("ERREUR ENVOI EMAIL à {} : {} (type: {})", masquerEmail(to), e.getMessage(), e.getClass().getSimpleName());
             if (e.getCause() != null) {
                 log.error("Cause: {} - {}", e.getCause().getClass().getSimpleName(), e.getCause().getMessage());
             }
@@ -95,6 +95,15 @@ public class EmailService {
                 "Candidature " + statut + " - ProLink",
                 "Bonjour,\n\nVotre candidature pour l'offre \"" + offreTitre + "\" a été " + statut + ".\n\nCordialement,\nL'équipe ProLink"
         );
+    }
+
+    private String masquerEmail(String email) {
+        if (email == null || !email.contains("@")) return "***";
+        String[] parts = email.split("@");
+        String local = parts[0];
+        String domain = parts[1];
+        if (local.length() <= 2) return local.charAt(0) + "***@" + domain;
+        return local.charAt(0) + "***" + local.charAt(local.length() - 1) + "@" + domain;
     }
 
     public boolean notifierNouveauMessage(String email, String expediteurNom) {

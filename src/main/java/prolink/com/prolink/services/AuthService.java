@@ -75,7 +75,7 @@ public class AuthService {
         // Validation email unique
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException(
-                    "Un compte existe déjà avec cet email : " + dto.getEmail()
+                    "Un compte existe déjà avec cette adresse email."
             );
         }
 

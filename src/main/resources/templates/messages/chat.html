@@ -176,9 +176,17 @@
 
         var heure = horodatage ? horodatage.substring(11, 16) : new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
-        div.innerHTML = '<div class="chat-bubble ' + (isMoi ? 'sent' : 'received') + '">' +
-            '<p class="mb-0 small">' + escapeHtml(contenu) + '</p>' +
-            '<span class="chat-time">' + heure + '</span></div>';
+        var bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + (isMoi ? 'sent' : 'received');
+        var p = document.createElement('p');
+        p.className = 'mb-0 small';
+        p.textContent = contenu;
+        var span = document.createElement('span');
+        span.className = 'chat-time';
+        span.textContent = heure;
+        bubble.appendChild(p);
+        bubble.appendChild(span);
+        div.appendChild(bubble);
 
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -208,13 +216,6 @@
         var text = document.getElementById('statusText');
         dot.className = 'connection-status ' + (online ? 'online' : 'offline');
         text.textContent = online ? 'Connecté' : 'Déconnecté';
-    }
-
-    // Échappement HTML
-    function escapeHtml(text) {
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(text));
-        return div.innerHTML;
     }
 
     // Events
