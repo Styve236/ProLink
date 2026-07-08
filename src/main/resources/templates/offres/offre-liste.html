@@ -68,18 +68,29 @@
         </div>
     </div>
 
-    <!-- Recherche -->
+    <!-- Recherche & Filtres -->
     <div class="container-xxl py-4">
         <div class="container">
             <form th:action="@{/offres}" method="get" class="row g-2 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="col-md-10">
+                <div class="col-md-5">
                     <input type="text" name="recherche" class="form-control border-0 py-3 px-4"
                            th:value="${recherche}" placeholder="Rechercher par titre, compétence, lieu...">
                 </div>
+                <div class="col-md-3">
+                    <select name="typeContrat" class="form-select border-0 py-3 px-4">
+                        <option value="">Tous les contrats</option>
+                        <option th:each="t : ${typesContrat}" th:value="${t}" th:selected="${t == typeContrat}" th:text="${t}">CDI</option>
+                    </select>
+                </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100 py-3">
-                        <i class="fa fa-search me-2"></i>Rechercher
+                        <i class="fa fa-search me-2"></i>Chercher
                     </button>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/offres}" class="btn btn-outline-secondary w-100 py-3">
+                        <i class="fa fa-times me-2"></i>Réinitialiser
+                    </a>
                 </div>
             </form>
         </div>
@@ -90,10 +101,12 @@
         <div class="container">
 
             <!-- Résultat de recherche -->
-            <div th:if="${recherche != null}" class="mb-4 wow fadeInUp" data-wow-delay="0.1s">
+            <div th:if="${recherche != null or typeContrat != null}" class="mb-4 wow fadeInUp" data-wow-delay="0.1s">
                 <p class="text-muted">
-                    Résultats pour : <strong th:text="${recherche}"></strong> —
-                    <a th:href="@{/offres}">Voir toutes les offres</a>
+                    <span th:text="${totalElements}">0</span> offre(s) trouvée(s)
+                    <span th:if="${recherche != null}">pour "<strong th:text="${recherche}"></strong>"</span>
+                    <span th:if="${typeContrat != null}">en <strong th:text="${typeContrat}"></strong></span>
+                    — <a th:href="@{/offres}">Voir toutes les offres</a>
                 </p>
             </div>
 
@@ -101,8 +114,8 @@
             <div th:if="${#lists.isEmpty(listeOffres)}" class="text-center py-5 wow fadeInUp" data-wow-delay="0.1s">
                 <i class="fa fa-briefcase fa-4x text-muted mb-4"></i>
                 <h4 class="text-muted">Aucune offre disponible pour le moment</h4>
-                <p class="text-muted" th:if="${recherche != null}">
-                    Aucun résultat pour "<span th:text="${recherche}"></span>".
+                <p class="text-muted" th:if="${recherche != null or typeContrat != null}">
+                    Aucun résultat pour votre recherche.
                     <a th:href="@{/offres}">Voir toutes les offres</a>
                 </p>
             </div>
@@ -137,6 +150,31 @@
                             Voir l'offre <i class="fa fa-arrow-right ms-2"></i>
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="row mt-4 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-12">
+                    <nav aria-label="Navigation pages">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${pageActuelle == 0} ? 'disabled'">
+                                <a class="page-link" th:href="@{/offres(recherche=${recherche}, typeContrat=${typeContrat}, page=${pageActuelle - 1})}">
+                                    <i class="fa fa-chevron-left me-1"></i>Précédent
+                                </a>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                class="page-item" th:classappend="${i == pageActuelle} ? 'active'">
+                                <a class="page-link" th:href="@{/offres(recherche=${recherche}, typeContrat=${typeContrat}, page=${i})}"
+                                   th:text="${i + 1}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${pageActuelle >= totalPages - 1} ? 'disabled'">
+                                <a class="page-link" th:href="@{/offres(recherche=${recherche}, typeContrat=${typeContrat}, page=${pageActuelle + 1})}">
+                                    Suivant<i class="fa fa-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
 

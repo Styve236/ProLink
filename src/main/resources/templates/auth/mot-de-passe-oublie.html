@@ -2,7 +2,7 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>Connexion - ProLink</title>
+    <title>Mot de passe oublié - ProLink</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link th:href="@{/img/favicon.ico}" rel="icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,26 +18,16 @@
         <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
             <h1 class="m-0 text-primary">ProLink</h1>
         </a>
-        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <div class="navbar-nav ms-auto p-4 p-lg-0">
-                <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
-                <a th:href="@{/pages/a-propos}" class="nav-item nav-link">À propos</a>
-                <a th:href="@{/offres/mes-offres}" class="nav-item nav-link">Offres</a>
-                <a th:href="@{/pages/contact}" class="nav-item nav-link">Contact</a>
-            </div>
-        </div>
     </nav>
 
     <div class="container-xxl py-5 bg-dark page-header mb-5">
         <div class="container my-5 pt-5 pb-4">
-            <h1 class="display-3 text-white mb-3 animated slideInDown">Connexion</h1>
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Mot de passe oublié</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb text-uppercase">
                     <li class="breadcrumb-item"><a th:href="@{/}" class="text-white">Accueil</a></li>
-                    <li class="breadcrumb-item text-white active" aria-current="page">Connexion</li>
+                    <li class="breadcrumb-item"><a th:href="@{/auth/connexion}" class="text-white">Connexion</a></li>
+                    <li class="breadcrumb-item text-white active" aria-current="page">Mot de passe oublié</li>
                 </ol>
             </nav>
         </div>
@@ -47,32 +37,22 @@
         <div class="row justify-content-center">
             <div class="col-lg-5 col-md-8">
                 <div class="bg-light rounded p-5 wow fadeInUp" data-wow-delay="0.1s">
-                    <h3 class="mb-4 text-center">Connectez-vous à votre compte</h3>
+                    <h3 class="mb-4 text-center">Réinitialisation</h3>
+                    <p class="text-muted text-center mb-4">
+                        Entrez votre adresse email. Si un compte existe, vous recevrez un lien de réinitialisation.
+                    </p>
 
-                    <div class="alert alert-danger" th:if="${erreur}" th:text="${erreur}"></div>
-                    <div class="alert alert-success" th:if="${succes}" th:text="${succes}"></div>
-
-                    <form th:action="@{/auth/connexion}" method="post">
-                        <input type="hidden" name="redirect" th:value="${redirect}" th:if="${redirect != null}"/>
-                        <div class="mb-3">
+                    <form th:action="@{/auth/mot-de-passe-oublie}" method="post">
+                        <div class="mb-4">
                             <label for="email" class="form-label">Adresse email</label>
                             <input type="email" id="email" name="email" class="form-control py-3"
-                                   placeholder="vous@exemple.com" required autofocus>
+                                   placeholder="vous@exemple.com" required>
                         </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Mot de passe</label>
-                            <input type="password" id="password" name="password" class="form-control py-3"
-                                   placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-3">Se connecter</button>
-                        <div class="text-center mt-3">
-                            <a th:href="@{/auth/mot-de-passe-oublie}" class="text-muted small">Mot de passe oublié ?</a>
-                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3">Envoyer le lien</button>
                     </form>
 
                     <p class="text-center mt-4 mb-0">
-                        Pas encore de compte ?
-                        <a th:href="@{/auth/inscription}" class="text-primary">Créer un compte</a>
+                        <a th:href="@{/auth/connexion}" class="text-primary">Retour à la connexion</a>
                     </p>
                 </div>
             </div>

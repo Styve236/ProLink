@@ -12,6 +12,7 @@ import prolink.com.prolink.dto.request.InscriptionDto;
 import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.services.AuthService;
 import prolink.com.prolink.services.OffreService;
+import java.util.Map;
 
 @Controller
 public class AuthController {
@@ -22,6 +23,47 @@ public class AuthController {
     public AuthController(AuthService authService, OffreService offreService) {
         this.authService = authService;
         this.offreService = offreService;
+    }
+
+    @GetMapping("/auth/mot-de-passe-oublie")
+    public String afficherMotDePasseOublie() {
+        return "auth/mot-de-passe-oublie";
+    }
+
+    @PostMapping("/auth/mot-de-passe-oublie")
+    public String traiterMotDePasseOublie(@RequestParam String email,
+                                          RedirectAttributes redirectAttributes) {
+        try {
+            authService.creerTokenReinitialisation(email);
+            redirectAttributes.addFlashAttribute("succes",
+                    "Si un compte existe avec cet email, un lien de réinitialisation vous a été envoyé.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("succes",
+                    "Si un compte existe avec cet email, un lien de réinitialisation vous a été envoyé.");
+        }
+        return "redirect:/auth/connexion";
+    }
+
+    @GetMapping("/auth/reinitialiser-mot-de-passe")
+    public String afficherReinitialisation(@RequestParam String token, Model model) {
+        model.addAttribute("token", token);
+        return "auth/reinitialiser-mot-de-passe";
+    }
+
+    @PostMapping("/auth/reinitialiser-mot-de-passe")
+    public String traiterReinitialisation(@RequestParam String token,
+                                          @RequestParam String password,
+                                          @RequestParam String confirmPassword,
+                                          RedirectAttributes redirectAttributes) {
+        try {
+            authService.reinitialiserMotDePasse(token, password, confirmPassword);
+            redirectAttributes.addFlashAttribute("succes",
+                    "Votre mot de passe a été réinitialisé avec succès.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+            return "redirect:/auth/reinitialiser-mot-de-passe?token=" + token;
+        }
+        return "redirect:/auth/connexion";
     }
 
     @GetMapping({"/", "/index"})

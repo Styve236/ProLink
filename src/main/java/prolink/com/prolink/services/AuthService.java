@@ -1,14 +1,18 @@
 package prolink.com.prolink.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import prolink.com.prolink.dto.request.InscriptionDto;
 import prolink.com.prolink.entities.Etudiant;
 import prolink.com.prolink.entities.Freelance;
+import prolink.com.prolink.entities.PasswordResetToken;
 import prolink.com.prolink.entities.Recruteur;
 import prolink.com.prolink.entities.User;
 import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.enums.StatutCompte;
 import prolink.com.prolink.repositories.EtudiantRepository;
 import prolink.com.prolink.repositories.FreelanceRepository;
+import prolink.com.prolink.repositories.PasswordResetTokenRepository;
 import prolink.com.prolink.repositories.RecruteurRepository;
 import prolink.com.prolink.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,10 +44,14 @@ import java.util.UUID;
 @Transactional
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
     private final UserRepository userRepository;
     private final EtudiantRepository etudiantRepository;
     private final FreelanceRepository freelanceRepository;
     private final RecruteurRepository recruteurRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
@@ -51,12 +59,16 @@ public class AuthService {
                        EtudiantRepository etudiantRepository,
                        FreelanceRepository freelanceRepository,
                        RecruteurRepository recruteurRepository,
+                       PasswordResetTokenRepository passwordResetTokenRepository,
+                       EmailService emailService,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.etudiantRepository = etudiantRepository;
         this.freelanceRepository = freelanceRepository;
         this.recruteurRepository = recruteurRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
     }
@@ -209,6 +221,53 @@ public class AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         return auth;
+    }
+
+    // MOT DE PASSE OUBLIÉ
+
+    public String creerTokenReinitialisation(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Aucun compte trouvé avec cette adresse email."
+                ));
+
+        passwordResetTokenRepository.deleteByUser(user);
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken(token, user, 60);
+        passwordResetTokenRepository.save(resetToken);
+
+        String lien = "http://localhost:8080/auth/reinitialiser-mot-de-passe?token=" + token;
+        String contenu = "Bonjour,\n\n" +
+                "Vous avez demandé la réinitialisation de votre mot de passe ProLink.\n\n" +
+                "Cliquez sur le lien ci-dessous (valable 60 minutes) :\n" +
+                lien + "\n\n" +
+                "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\n" +
+                "Cordialement,\nL'équipe ProLink";
+
+        log.info("🔗 LIEN DE RÉINITIALISATION (non envoyé si SMTP non configuré) : {}", lien);
+        emailService.envoyerEmail(email, "Réinitialisation mot de passe - ProLink", contenu);
+        return token;
+    }
+
+    public void reinitialiserMotDePasse(String token, String nouveauMotDePasse, String confirmation) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token invalide."));
+
+        if (!resetToken.isValid()) {
+            throw new IllegalArgumentException("Ce token a expiré ou a déjà été utilisé.");
+        }
+
+        if (!nouveauMotDePasse.equals(confirmation)) {
+            throw new IllegalArgumentException("Les mots de passe ne correspondent pas.");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(nouveauMotDePasse));
+        userRepository.save(user);
+
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
     }
 
     // UTILITAIRES

@@ -2,6 +2,7 @@ package prolink.com.prolink.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -29,18 +30,23 @@ public class OffreController {
     @GetMapping
     public String listerOffres(Model model,
                                @RequestParam(required = false) String recherche,
+                               @RequestParam(required = false) String typeContrat,
+                               @RequestParam(defaultValue = "0") int page,
                                @AuthenticationPrincipal UserDetails userDetails) {
 
-        // Recherche ou liste complète des offres approuvées
+        Page<JobOffer> pageOffres = offreService.getOffresPaginees(recherche, typeContrat, page, 10);
+
+        model.addAttribute("listeOffres", pageOffres.getContent());
+        model.addAttribute("pageActuelle", page);
+        model.addAttribute("totalPages", pageOffres.getTotalPages());
+        model.addAttribute("totalElements", pageOffres.getTotalElements());
+        model.addAttribute("typeContrat", typeContrat);
+        model.addAttribute("typesContrat", offreService.getTypesContrat());
+
         if (recherche != null && !recherche.isBlank()) {
-            model.addAttribute("listeOffres", offreService.rechercherOffres(recherche));
             model.addAttribute("recherche", recherche);
-        } else {
-            model.addAttribute("listeOffres", offreService.getOffresPubliques());
         }
 
-        // Indique à Thymeleaf si l'utilisateur a déjà postulé à chaque offre
-        // Utilisé pour griser le bouton "Postuler"
         if (userDetails != null) {
             model.addAttribute("emailConnecte", userDetails.getUsername());
         }

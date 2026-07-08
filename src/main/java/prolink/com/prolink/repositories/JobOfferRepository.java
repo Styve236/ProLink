@@ -3,12 +3,12 @@ package prolink.com.prolink.repositories;
 import prolink.com.prolink.entities.JobOffer;
 import prolink.com.prolink.entities.Recruteur;
 import prolink.com.prolink.enums.StatutOffre;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import prolink.com.prolink.entities.Candidature;
-
 
 import java.util.List;
 
@@ -31,6 +31,29 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long> {
             "LOWER(o.description) LIKE LOWER(CONCAT('%', :terme, '%')) OR " +
             "LOWER(o.lieu) LIKE LOWER(CONCAT('%', :terme, '%')))")
     List<JobOffer> rechercherOffres(@Param("terme") String terme);
+
+    // Pagination : toutes les offres approuvées
+    Page<JobOffer> findByStatut(StatutOffre statut, Pageable pageable);
+
+    // Pagination + filtre par type de contrat
+    Page<JobOffer> findByStatutAndTypeContratIgnoreCase(StatutOffre statut, String typeContrat, Pageable pageable);
+
+    // Pagination + recherche par mot-clé
+    @Query("SELECT o FROM JobOffer o WHERE o.statut = 'APPROUVEE' AND (" +
+            "LOWER(o.titre) LIKE LOWER(CONCAT('%', :terme, '%')) OR " +
+            "LOWER(o.description) LIKE LOWER(CONCAT('%', :terme, '%')) OR " +
+            "LOWER(o.lieu) LIKE LOWER(CONCAT('%', :terme, '%')))")
+    Page<JobOffer> rechercherOffresPagine(@Param("terme") String terme, Pageable pageable);
+
+    // Pagination + recherche + filtre type contrat
+    @Query("SELECT o FROM JobOffer o WHERE o.statut = 'APPROUVEE' AND " +
+            "(LOWER(o.titre) LIKE LOWER(CONCAT('%', :terme, '%')) OR " +
+            "LOWER(o.description) LIKE LOWER(CONCAT('%', :terme, '%')) OR " +
+            "LOWER(o.lieu) LIKE LOWER(CONCAT('%', :terme, '%'))) AND " +
+            "(:typeContrat IS NULL OR LOWER(o.typeContrat) = LOWER(:typeContrat))")
+    Page<JobOffer> rechercherOffresAvecFiltre(@Param("terme") String terme,
+                                              @Param("typeContrat") String typeContrat,
+                                              Pageable pageable);
 
     // Recherche par type de contrat
     List<JobOffer> findByStatutAndTypeContratIgnoreCase(StatutOffre statut, String typeContrat);

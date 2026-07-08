@@ -7,6 +7,10 @@ import prolink.com.prolink.entities.Recruteur;
 import prolink.com.prolink.enums.StatutOffre;
 import prolink.com.prolink.repositories.JobOfferRepository;
 import prolink.com.prolink.repositories.RecruteurRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,6 +116,30 @@ public class OffreService {
     public List<JobOffer> rechercherOffres(String terme) {
         if (terme == null || terme.isBlank()) return getOffresPubliques();
         return jobOfferRepository.rechercherOffres(terme.trim());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<JobOffer> getOffresPaginees(String recherche, String typeContrat, int page, int taille) {
+        Pageable pageable = PageRequest.of(page, taille, Sort.by(Sort.Direction.DESC, "datePublication"));
+
+        boolean aRecherche = recherche != null && !recherche.isBlank();
+        boolean aFiltre = typeContrat != null && !typeContrat.isBlank();
+
+        if (aRecherche && aFiltre) {
+            return jobOfferRepository.rechercherOffresAvecFiltre(recherche.trim(), typeContrat.trim(), pageable);
+        }
+        if (aRecherche) {
+            return jobOfferRepository.rechercherOffresPagine(recherche.trim(), pageable);
+        }
+        if (aFiltre) {
+            return jobOfferRepository.findByStatutAndTypeContratIgnoreCase(StatutOffre.APPROUVEE, typeContrat.trim(), pageable);
+        }
+        return jobOfferRepository.findByStatut(StatutOffre.APPROUVEE, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getTypesContrat() {
+        return List.of("CDI", "CDD", "Stage", "Freelance", "Alternance");
     }
 
     @Transactional(readOnly = true)

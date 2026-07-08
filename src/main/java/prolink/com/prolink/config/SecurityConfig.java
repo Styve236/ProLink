@@ -85,6 +85,8 @@ public class SecurityConfig {
                                 "/auth/inscription",
                                 "/auth/connexion",
                                 "/auth/deconnexion",
+                                "/auth/mot-de-passe-oublie",
+                                "/auth/reinitialiser-mot-de-passe",
                                 "/compte/en-attente",
                                 "/erreur/**",
                                 "/offres",
