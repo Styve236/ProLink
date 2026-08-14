@@ -5,13 +5,15 @@ FROM eclipse-temurin:25-jdk AS build
 WORKDIR /app
 
 # Cache des dépendances Maven
+# NB : on appelle le wrapper via `sh` car le bit exécutable de mvnw
+# n'est pas conservé par Git (fichier créé sous Windows).
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
-RUN ./mvnw -B dependency:go-offline || true
+RUN sh ./mvnw -B dependency:go-offline || true
 
 # Code source + compilation
 COPY src src
-RUN ./mvnw -B package -DskipTests
+RUN sh ./mvnw -B package -DskipTests
 
 # ============================================
 # Runtime : image Java minimale
