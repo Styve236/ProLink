@@ -36,17 +36,22 @@ import java.util.UUID;
 @Transactional
 public class ProfilService {
 
-    private static final String UPLOAD_DIR = "uploads/photos/";
+    // Préfixe d'URL public des photos (mappé par WebMvcConfig vers app.upload-dir)
+    private static final String URL_PREFIX = "/uploads/";
 
+    private final String photosDir;
     private final UserRepository userRepository;
     private final EtudiantRepository etudiantRepository;
     private final FreelanceRepository freelanceRepository;
     private final RecruteurRepository recruteurRepository;
 
-    public ProfilService(UserRepository userRepository,
+    public ProfilService(@org.springframework.beans.factory.annotation.Value("${app.upload-dir:uploads/}") String uploadDir,
+                         UserRepository userRepository,
                          EtudiantRepository etudiantRepository,
                          FreelanceRepository freelanceRepository,
                          RecruteurRepository recruteurRepository) {
+        String dir = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
+        this.photosDir = dir + "photos/";
         this.userRepository = userRepository;
         this.etudiantRepository = etudiantRepository;
         this.freelanceRepository = freelanceRepository;
@@ -183,15 +188,15 @@ public class ProfilService {
         String nomFichier = UUID.randomUUID() + "." + extension;
 
         // Création du dossier si nécessaire
-        Path dossier = Paths.get(UPLOAD_DIR);
+        Path dossier = Paths.get(photosDir);
         Files.createDirectories(dossier);
 
         // Sauvegarde du fichier
         Path destination = dossier.resolve(nomFichier);
         Files.copy(photo.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
 
-        // Mise à jour de l'URL en base
-        String urlPhoto = "/" + UPLOAD_DIR + nomFichier;
+        // Mise à jour de l'URL en base (préfixe public constant)
+        String urlPhoto = URL_PREFIX + "photos/" + nomFichier;
         User user = getProfilComplet(email);
         user.setPhotoUrl(urlPhoto);
         userRepository.save(user);

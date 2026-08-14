@@ -1,5 +1,6 @@
 package prolink.com.prolink.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -7,10 +8,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    // Dossier de stockage des uploads — configurable via UPLOAD_DIR
+    // (ex: /data/uploads sur Render, uploads/ en local)
+    @Value("${app.upload-dir:uploads/}")
+    private String uploadDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String dir = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
         registry
                 .addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
+                .addResourceLocations("file:" + dir);
     }
 }

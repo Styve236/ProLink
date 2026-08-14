@@ -34,16 +34,19 @@ import java.util.UUID;
 @Transactional
 public class DocumentService {
 
-    private static final String UPLOAD_DIR = "uploads/documents/";
     private static final long TAILLE_MAX = 5 * 1024 * 1024; // 5 Mo
     private static final List<String> EXTENSIONS_AUTORISEES =
             List.of("pdf", "jpg", "jpeg", "png");
 
+    private final String documentsDir;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
 
-    public DocumentService(DocumentRepository documentRepository,
+    public DocumentService(@org.springframework.beans.factory.annotation.Value("${app.upload-dir:uploads/}") String uploadDir,
+                           DocumentRepository documentRepository,
                            UserRepository userRepository) {
+        String dir = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
+        this.documentsDir = dir + "documents/";
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
     }
@@ -85,7 +88,7 @@ public class DocumentService {
         // Nom de fichier unique pour éviter les collisions et les écrasements
         String nomFichierStocke = UUID.randomUUID() + "." + extension;
 
-        Path dossier = Paths.get(UPLOAD_DIR);
+        Path dossier = Paths.get(documentsDir);
         Files.createDirectories(dossier);
 
         Path destination = dossier.resolve(nomFichierStocke);
@@ -94,7 +97,7 @@ public class DocumentService {
         Document document = new Document();
         document.setUtilisateur(utilisateur);
         document.setNomFichier(fichier.getOriginalFilename());
-        document.setCheminFichier(UPLOAD_DIR + nomFichierStocke);
+        document.setCheminFichier(documentsDir + nomFichierStocke);
         document.setTypeMime(fichier.getContentType());
         document.setTaille(fichier.getSize());
         document.setTypeDocument(type);

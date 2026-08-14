@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -38,4 +39,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     // Utilisé par AdminService pour suppression propre
     void deleteByExpediteur(User expediteur);
     void deleteByDestinataire(User destinataire);
+
+    // ── Comptage par période — rapport d'activités admin ──
+    long countByDateEnvoiBetween(LocalDateTime debut, LocalDateTime fin);
 }

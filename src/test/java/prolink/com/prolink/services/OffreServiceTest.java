@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import prolink.com.prolink.dto.request.OffreDto;
@@ -40,6 +43,11 @@ class OffreServiceTest {
 
     @BeforeEach
     void setUp() {
+        // Utilisateur authentifié avec le rôle RECRUTEUR (nécessaire pour @PreAuthorize)
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "test-user", "test-password",
+                        List.of(new SimpleGrantedAuthority("ROLE_RECRUTEUR"))));
         var dtoRecruteur = new prolink.com.prolink.dto.request.InscriptionDto();
         dtoRecruteur.setPrenom("Charles");
         dtoRecruteur.setNom("Nkwi");

@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import prolink.com.prolink.dto.request.CandidatureDto;
 import prolink.com.prolink.dto.request.OffreDto;
@@ -58,6 +61,8 @@ class CandidatureServiceTest {
 
     @BeforeEach
     void setUp() {
+        // Utilisateur authentifié avec le rôle ETUDIANT (nécessaire pour @PreAuthorize)
+        authentifierComme("ETUDIANT");
         var dtoCandidat = new prolink.com.prolink.dto.request.InscriptionDto();
         dtoCandidat.setPrenom("Alice");
         dtoCandidat.setNom("Martin");
@@ -142,6 +147,8 @@ class CandidatureServiceTest {
         CandidatureDto dto = new CandidatureDto();
         dto.setMessageMotivation("Motivé");
         candidatureService.postuler(offre.getId(), dto, "alice.martin@gmail.com");
+        // Le recruteur n'est pas autorisé à voir les candidatures de cet offre qu'il ne possède pas
+        authentifierComme("RECRUTEUR");
         assertThrows(IllegalStateException.class,
                 () -> candidatureService.getCandidaturesDuneOffre(offre.getId(), "alice.martin@gmail.com"));
     }
@@ -157,5 +164,12 @@ class CandidatureServiceTest {
     @Test
     void aDejaPostule_false() {
         assertFalse(candidatureService.aDejaPostule(offre.getId(), "alice.martin@gmail.com"));
+    }
+
+    private void authentifierComme(String role) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "test-user", "test-password",
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))));
     }
 }

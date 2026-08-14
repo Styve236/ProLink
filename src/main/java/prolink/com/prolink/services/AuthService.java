@@ -46,6 +46,10 @@ public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
+    // Préfixe d'URL public des photos (mappé par WebMvcConfig vers app.upload-dir)
+    private static final String URL_PREFIX = "/uploads/";
+
+    private final String photosDir;
     private final UserRepository userRepository;
     private final EtudiantRepository etudiantRepository;
     private final FreelanceRepository freelanceRepository;
@@ -55,7 +59,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(UserRepository userRepository,
+    public AuthService(@org.springframework.beans.factory.annotation.Value("${app.upload-dir:uploads/}") String uploadDir,
+                       UserRepository userRepository,
                        EtudiantRepository etudiantRepository,
                        FreelanceRepository freelanceRepository,
                        RecruteurRepository recruteurRepository,
@@ -63,6 +68,8 @@ public class AuthService {
                        EmailService emailService,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager) {
+        String dir = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
+        this.photosDir = dir + "photos/";
         this.userRepository = userRepository;
         this.etudiantRepository = etudiantRepository;
         this.freelanceRepository = freelanceRepository;
@@ -189,11 +196,11 @@ public class AuthService {
             try {
                 String extension = obtenirExtension(photo.getOriginalFilename());
                 String nomFichier = UUID.randomUUID() + "." + extension;
-                Path dossier = Paths.get("uploads/photos/");
+                Path dossier = Paths.get(photosDir);
                 Files.createDirectories(dossier);
                 Path destination = dossier.resolve(nomFichier);
                 Files.copy(photo.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-                user.setPhotoUrl("/uploads/photos/" + nomFichier);
+                user.setPhotoUrl(URL_PREFIX + "photos/" + nomFichier);
             } catch (IOException e) {
                 throw new IllegalArgumentException(
                         "Erreur lors de l'enregistrement de la photo : " + e.getMessage()

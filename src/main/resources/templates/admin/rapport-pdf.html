@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Rapport d'activités ProLink</title>
+</head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #222;">
+
+<h2 style="color: #0d6efd;">Rapport d'activités ProLink</h2>
+<p>
+    Période du <b th:text="${rapport.debut}"></b> au <b th:text="${rapport.fin}"></b><br/>
+    Généré le <b th:text="${rapport.genereLe}"></b>
+</p>
+
+<hr/>
+
+<h3 style="color: #0d6efd;">1. Vue d'ensemble (depuis le début)</h3>
+<table border="1" cellpadding="6" cellspacing="0" width="100%">
+    <tr bgcolor="#e9ecef">
+        <td width="70%"><b>Indicateur</b></td>
+        <td><b>Valeur</b></td>
+    </tr>
+    <tr><td>Total utilisateurs</td><td th:text="${rapport.totalUtilisateurs}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont étudiants</td><td th:text="${rapport.totalEtudiants}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont freelances</td><td th:text="${rapport.totalFreelances}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont recruteurs</td><td th:text="${rapport.totalRecruteurs}">0</td></tr>
+    <tr><td>Total offres</td><td th:text="${rapport.totalOffres}">0</td></tr>
+    <tr><td>Total candidatures</td><td th:text="${rapport.totalCandidatures}">0</td></tr>
+    <tr><td>Total documents</td><td th:text="${rapport.totalDocuments}">0</td></tr>
+    <tr><td>Total messages</td><td th:text="${rapport.totalMessages}">0</td></tr>
+</table>
+
+<h3 style="color: #0d6efd;">2. Activité sur la période</h3>
+<table border="1" cellpadding="6" cellspacing="0" width="100%">
+    <tr bgcolor="#e9ecef">
+        <td width="70%"><b>Indicateur</b></td>
+        <td><b>Valeur</b></td>
+    </tr>
+    <tr><td>Inscriptions</td><td th:text="${rapport.inscriptionsPeriode}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont étudiants</td><td th:text="${rapport.inscriptionsEtudiants}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont freelances</td><td th:text="${rapport.inscriptionsFreelances}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont recruteurs</td><td th:text="${rapport.inscriptionsRecruteurs}">0</td></tr>
+    <tr><td>Comptes en attente de validation</td><td th:text="${rapport.comptesEnAttente}">0</td></tr>
+    <tr><td>Offres publiées</td><td th:text="${rapport.offresPeriode}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont approuvées</td><td th:text="${rapport.offresApprouvees}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont en attente</td><td th:text="${rapport.offresEnAttente}">0</td></tr>
+    <tr><td>Candidatures reçues</td><td th:text="${rapport.candidaturesPeriode}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont acceptées</td><td th:text="${rapport.candidaturesAcceptees}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont refusées</td><td th:text="${rapport.candidaturesRefusees}">0</td></tr>
+    <tr><td>Documents déposés</td><td th:text="${rapport.documentsPeriode}">0</td></tr>
+    <tr><td>&nbsp;&nbsp;dont validés</td><td th:text="${rapport.documentsValides}">0</td></tr>
+    <tr><td>Messages privés</td><td th:text="${rapport.messagesPeriode}">0</td></tr>
+    <tr><td>Messages chat temps réel</td><td th:text="${rapport.chatPeriode}">0</td></tr>
+    <tr><td>Demandes de connexion</td><td th:text="${rapport.connexionsPeriode}">0</td></tr>
+    <tr><td>Notifications générées</td><td th:text="${rapport.notificationsPeriode}">0</td></tr>
+</table>
+
+<h3 style="color: #0d6efd;">3. Top recruteurs sur la période</h3>
+<table border="1" cellpadding="6" cellspacing="0" width="100%">
+    <tr bgcolor="#e9ecef">
+        <td width="10%"><b>#</b></td>
+        <td width="70%"><b>Entreprise</b></td>
+        <td><b>Offres publiées</b></td>
+    </tr>
+    <tr th:each="r, iter : ${rapport.topRecruteurs}">
+        <td th:text="${iter.index + 1}">1</td>
+        <td th:text="${r[0] == null ? 'Recruteur sans entreprise' : r[0]}">Entreprise</td>
+        <td th:text="${r[1]}">0</td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(rapport.topRecruteurs)}">
+        <td colspan="3" align="center">Aucune offre publiée sur cette période.</td>
+    </tr>
+</table>
+
+<p style="font-size: 8pt; color: #888; margin-top: 20px;">
+    Document généré automatiquement par ProLink — Administration.
+</p>
+
+</body>
+</html>

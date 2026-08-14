@@ -6,6 +6,7 @@ import prolink.com.prolink.enums.StatutValidation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -16,4 +17,11 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     List<Document> findByStatutValidation(StatutValidation statut);
 
     long countByStatutValidation(StatutValidation statut);
+
+    // ── Comptage par période — rapport d'activités admin ──
+    long countByDateDepotBetween(LocalDateTime debut, LocalDateTime fin);
+
+    long countByStatutValidationAndDateDepotBetween(StatutValidation statut,
+                                                    LocalDateTime debut,
+                                                    LocalDateTime fin);
 }

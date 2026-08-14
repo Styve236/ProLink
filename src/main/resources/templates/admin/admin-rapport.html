@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>Rapport d'activités - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link th:href="@{/img/favicon.ico}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-xxl bg-white p-0">
+
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Chargement...</span>
+        </div>
+    </div>
+
+    <!-- Navbar Admin -->
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow sticky-top p-0">
+        <a th:href="@{/admin/dashboard}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink <span class="text-white fs-6 fw-normal ms-2">Admin</span></h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/admin/dashboard}" class="nav-item nav-link text-white-50">
+                    <i class="fa fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a th:href="@{/admin/users}" class="nav-item nav-link text-white-50">
+                    <i class="fa fa-users me-1"></i>Utilisateurs
+                </a>
+                <a th:href="@{/admin/offres/pending}" class="nav-item nav-link text-white-50">
+                    <i class="fa fa-briefcase me-1"></i>Offres
+                </a>
+                <a th:href="@{/admin/rapport}" class="nav-item nav-link active text-white">
+                    <i class="fa fa-chart-pie me-1"></i>Rapport
+                </a>
+                <form th:action="@{/auth/deconnexion}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-link nav-link text-danger p-0">
+                        <i class="fa fa-sign-out-alt me-1"></i>Déconnexion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Rapport d'activités</h1>
+            <p class="text-white fs-5">Fiche complète de l'activité de la plateforme</p>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5">
+        <div class="container">
+
+            <!-- Sélecteur de période + exports -->
+            <div class="card border-0 shadow mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="card-body p-4">
+                    <form method="get" th:action="@{/admin/rapport}"
+                          class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Du</label>
+                            <input type="date" class="form-control" name="debut" th:value="${debut}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Au</label>
+                            <input type="date" class="form-control" name="fin" th:value="${fin}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa fa-search me-2"></i>Aperçu
+                            </button>
+                        </div>
+                        <div class="col-md-4 d-flex gap-2 justify-content-md-end">
+                            <a th:href="@{/admin/rapport/export(format='csv', debut=${debut}, fin=${fin})}"
+                               class="btn btn-outline-success">
+                                <i class="fa fa-file-excel me-2"></i>Export CSV
+                            </a>
+                            <a th:href="@{/admin/rapport/export(format='pdf', debut=${debut}, fin=${fin})}"
+                               class="btn btn-outline-danger">
+                                <i class="fa fa-file-pdf me-2"></i>Export PDF
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Vue d'ensemble cumulative -->
+            <h5 class="mb-3"><i class="fa fa-globe text-primary me-2"></i>Vue d'ensemble (depuis le début)</h5>
+            <div class="row g-4 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-users fa-2x text-primary mb-2"></i>
+                            <h3 class="fw-bold" th:text="${rapport.totalUtilisateurs}">0</h3>
+                            <p class="text-muted small mb-0">Utilisateurs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-briefcase fa-2x text-success mb-2"></i>
+                            <h3 class="fw-bold" th:text="${rapport.totalOffres}">0</h3>
+                            <p class="text-muted small mb-0">Offres</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-file-signature fa-2x text-info mb-2"></i>
+                            <h3 class="fw-bold" th:text="${rapport.totalCandidatures}">0</h3>
+                            <p class="text-muted small mb-0">Candidatures</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow text-center h-100">
+                        <div class="card-body py-4">
+                            <i class="fa fa-file-alt fa-2x text-warning mb-2"></i>
+                            <h3 class="fw-bold" th:text="${rapport.totalDocuments}">0</h3>
+                            <p class="text-muted small mb-0">Documents</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activité sur la période -->
+            <h5 class="mb-3">
+                <i class="fa fa-chart-line text-primary me-2"></i>
+                Activité du <span class="fw-bold" th:text="${rapport.debut}"></span>
+                au <span class="fw-bold" th:text="${rapport.fin}"></span>
+            </h5>
+            <div class="row g-4 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="mb-0"><i class="fa fa-user-plus text-primary me-2"></i>Inscriptions</h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Total</span>
+                                <span class="fw-bold" th:text="${rapport.inscriptionsPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Étudiants</span>
+                                <span class="fw-bold" th:text="${rapport.inscriptionsEtudiants}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Freelances</span>
+                                <span class="fw-bold" th:text="${rapport.inscriptionsFreelances}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Recruteurs</span>
+                                <span class="fw-bold" th:text="${rapport.inscriptionsRecruteurs}">0</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Comptes en attente</span>
+                                <span class="fw-bold text-danger" th:text="${rapport.comptesEnAttente}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="mb-0"><i class="fa fa-briefcase text-primary me-2"></i>Offres &amp; candidatures</h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Offres publiées</span>
+                                <span class="fw-bold" th:text="${rapport.offresPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">&nbsp;&nbsp;dont approuvées</span>
+                                <span class="fw-bold text-success" th:text="${rapport.offresApprouvees}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">&nbsp;&nbsp;dont en attente</span>
+                                <span class="fw-bold text-warning" th:text="${rapport.offresEnAttente}">0</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Candidatures reçues</span>
+                                <span class="fw-bold" th:text="${rapport.candidaturesPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">&nbsp;&nbsp;acceptées</span>
+                                <span class="fw-bold text-success" th:text="${rapport.candidaturesAcceptees}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">&nbsp;&nbsp;refusées</span>
+                                <span class="fw-bold text-danger" th:text="${rapport.candidaturesRefusees}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="mb-0"><i class="fa fa-comments text-primary me-2"></i>Échanges &amp; contenu</h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Documents déposés</span>
+                                <span class="fw-bold" th:text="${rapport.documentsPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">&nbsp;&nbsp;validés</span>
+                                <span class="fw-bold text-success" th:text="${rapport.documentsValides}">0</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Messages privés</span>
+                                <span class="fw-bold" th:text="${rapport.messagesPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Messages chat temps réel</span>
+                                <span class="fw-bold" th:text="${rapport.chatPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Demandes de connexion</span>
+                                <span class="fw-bold" th:text="${rapport.connexionsPeriode}">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Notifications générées</span>
+                                <span class="fw-bold" th:text="${rapport.notificationsPeriode}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top recruteurs -->
+            <div class="card border-0 shadow wow fadeInUp" data-wow-delay="0.1s">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0"><i class="fa fa-trophy text-primary me-2"></i>Top recruteurs sur la période</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">#</th>
+                                <th>Entreprise</th>
+                                <th class="text-end pe-4">Offres publiées</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="r, iter : ${rapport.topRecruteurs}">
+                                <td class="ps-4" th:text="${iter.index + 1}">1</td>
+                                <td th:text="${r[0] == null ? 'Recruteur sans entreprise' : r[0]}">Entreprise</td>
+                                <td class="text-end pe-4 fw-bold" th:text="${r[1]}">0</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(rapport.topRecruteurs)}">
+                                <td colspan="3" class="text-center text-muted py-4">
+                                    Aucune offre publiée sur cette période.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5 text-center">
+            &copy; <a class="border-bottom text-white-50" th:href="@{/}">ProLink</a> — Interface d'administration
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/lib/easing/easing.min.js}"></script>
+<script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+.git
+.idea
+target
+uploads
+*.log
+startup.err
+startup.log
+.mvn/wrapper/maven-wrapper.jar
+*.bpj
+*.prj
+*.moo
+HELP.md
+RAPPORT_STAGE_TECHNOLOGIES.md
+dep-tree.txt

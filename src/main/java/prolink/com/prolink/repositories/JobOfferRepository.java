@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -71,4 +72,19 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long> {
     // Nombre de candidatures par offre — évite le LazyInitializationException
     @Query("SELECT o.id, COUNT(c) FROM JobOffer o LEFT JOIN o.candidatures c WHERE o.recruteur.id = :recruteurId GROUP BY o.id")
     List<Object[]> countCandidaturesParOffre(@Param("recruteurId") Long recruteurId);
+
+    // ── Comptage par période — rapport d'activités admin ──
+    long countByDatePublicationBetween(LocalDateTime debut, LocalDateTime fin);
+
+    long countByStatutAndDatePublicationBetween(StatutOffre statut,
+                                                LocalDateTime debut,
+                                                LocalDateTime fin);
+
+    // Top recruteurs (par nombre d'offres publiées) sur une période
+    @Query("SELECT o.recruteur.nomEntreprise, COUNT(o) FROM JobOffer o " +
+            "WHERE o.datePublication BETWEEN :debut AND :fin " +
+            "GROUP BY o.recruteur.nomEntreprise " +
+            "ORDER BY COUNT(o) DESC")
+    List<Object[]> topRecruteursParOffres(@Param("debut") LocalDateTime debut,
+                                          @Param("fin") LocalDateTime fin);
 }

@@ -1,0 +1,56 @@
+# ============================================
+# Blueprint Render.com — déploiement ProLink
+# Utilise : https://render.com
+# ============================================
+services:
+  - type: web
+    name: prolink
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /offres
+    # Disque persistant pour les fichiers uploadés (photos, documents)
+    disk:
+      name: uploads
+      mountPath: /data/uploads
+      sizeGB: 1
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
+      - key: UPLOAD_DIR
+        value: /data/uploads/
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: DB_HOST
+        fromDatabase:
+          name: prolink-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: prolink-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: prolink-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: prolink-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: prolink-db
+          property: password
+
+databases:
+  - name: prolink-db
+    plan: free
+    databaseName: prolink

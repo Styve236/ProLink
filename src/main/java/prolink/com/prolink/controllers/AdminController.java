@@ -1,5 +1,8 @@
 package prolink.com.prolink.controllers;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.html.simpleparser.HTMLWorker;
+import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -11,8 +14,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import prolink.com.prolink.entities.User;
 import prolink.com.prolink.enums.RoleUtilisateur;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.Map;
 import prolink.com.prolink.enums.StatutCompte;
 import prolink.com.prolink.services.AdminService;
@@ -20,6 +30,7 @@ import prolink.com.prolink.services.DocumentService;
 import prolink.com.prolink.services.EmailService;
 import prolink.com.prolink.services.NotificationService;
 import prolink.com.prolink.services.OffreService;
+import prolink.com.prolink.services.RapportService;
 
 
 @Controller
@@ -33,6 +44,8 @@ public class AdminController {
     private final NotificationService notificationService;
     private final DocumentService documentService;
     private final EmailService emailService;
+    private final RapportService rapportService;
+    private final TemplateEngine templateEngine;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -265,5 +278,83 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    // RAPPORT D'ACTIVITÉS
+
+    @GetMapping("/rapport")
+    public String rapport(Model model,
+                          @RequestParam(required = false) String debut,
+                          @RequestParam(required = false) String fin) {
+        LocalDate[] periode = resoudrePeriode(debut, fin);
+        model.addAttribute("debut", periode[0].toString());
+        model.addAttribute("fin", periode[1].toString());
+        model.addAttribute("rapport", rapportService.genererRapport(periode[0], periode[1]));
+        return "admin/admin-rapport";
+    }
+
+    @GetMapping("/rapport/export")
+    public ResponseEntity<byte[]> exporterRapport(@RequestParam String format,
+                                                  @RequestParam(required = false) String debut,
+                                                  @RequestParam(required = false) String fin) {
+        LocalDate[] periode = resoudrePeriode(debut, fin);
+        Map<String, Object> rapport = rapportService.genererRapport(periode[0], periode[1]);
+        String nomFichier = "rapport-activites-prolink_" + periode[0] + "_" + periode[1];
+
+        try {
+            if ("csv".equalsIgnoreCase(format)) {
+                byte[] contenu = rapportService.genererCsv(rapport).getBytes("UTF-8");
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                        .header(HttpHeaders.CONTENT_DISPOSITION,
+                                "attachment; filename=\"" + nomFichier + ".csv\"")
+                        .body(contenu);
+            }
+
+            if ("pdf".equalsIgnoreCase(format)) {
+                Context ctx = new Context(Locale.FRENCH);
+                ctx.setVariable("rapport", rapport);
+                String html = templateEngine.process("admin/rapport-pdf", ctx);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                Document pdfDoc = new Document();
+                PdfWriter writer = PdfWriter.getInstance(pdfDoc, out);
+                pdfDoc.open();
+                HTMLWorker htmlWorker = new HTMLWorker(pdfDoc);
+                htmlWorker.parse(new StringReader(html));
+                pdfDoc.close();
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .header(HttpHeaders.CONTENT_DISPOSITION,
+                                "attachment; filename=\"" + nomFichier + ".pdf\"")
+                        .body(out.toByteArray());
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ("Erreur lors de l'export : " + e.getMessage()).getBytes());
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    private LocalDate[] resoudrePeriode(String debut, String fin) {
+        LocalDate d;
+        LocalDate f;
+        try {
+            d = (debut == null || debut.isBlank())
+                    ? LocalDate.now().withDayOfMonth(1) : LocalDate.parse(debut);
+        } catch (DateTimeParseException e) {
+            d = LocalDate.now().withDayOfMonth(1);
+        }
+        try {
+            f = (fin == null || fin.isBlank())
+                    ? LocalDate.now() : LocalDate.parse(fin);
+        } catch (DateTimeParseException e) {
+            f = LocalDate.now();
+        }
+        if (f.isBefore(d)) {
+            LocalDate tmp = d;
+            d = f;
+            f = tmp;
+        }
+        return new LocalDate[]{d, f};
     }
 }

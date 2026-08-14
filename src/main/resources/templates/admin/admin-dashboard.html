@@ -161,6 +161,9 @@
                                 <span th:if="${stats.documentsEnAttente > 0}"
                                       class="badge bg-danger ms-2" th:text="${stats.documentsEnAttente}"></span>
                             </a>
+                            <a th:href="@{/admin/rapport}" class="btn btn-outline-info">
+                                <i class="fa fa-chart-pie me-2"></i>Exporter un rapport d'activités
+                            </a>
                             <form th:action="@{/admin/test-email}" method="post" class="d-inline">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <button type="submit" class="btn btn-outline-success w-100">

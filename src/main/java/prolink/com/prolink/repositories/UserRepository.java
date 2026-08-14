@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> rechercherParNomOuEmail(@Param("terme") String terme);
 
     long countByStatut(StatutCompte statut);
+
+    // ── Comptage par période — rapport d'activités admin ──
+    long countByDateInscriptionBetween(LocalDateTime debut, LocalDateTime fin);
+
+    long countByRoleAndDateInscriptionBetween(RoleUtilisateur role,
+                                              LocalDateTime debut,
+                                              LocalDateTime fin);
+
+    long countByStatutAndDateInscriptionBetween(StatutCompte statut,
+                                                LocalDateTime debut,
+                                                LocalDateTime fin);
 
     // ── Chargement eager des collections pour éviter LazyInitializationException ──
     // On fait 2 requêtes séparées car Hibernate interdit 2 JOIN FETCH sur 2 List en même temps

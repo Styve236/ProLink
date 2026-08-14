@@ -7,6 +7,7 @@ import prolink.com.prolink.enums.StatutCandidature;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +31,11 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     // Nombre de candidatures reçues pour une offre
     long countByOffre(JobOffer offre);
+
+    // ── Comptage par période — rapport d'activités admin ──
+    long countByDateCandidatureBetween(LocalDateTime debut, LocalDateTime fin);
+
+    long countByStatutAndDateCandidatureBetween(StatutCandidature statut,
+                                                LocalDateTime debut,
+                                                LocalDateTime fin);
 }
