@@ -30,27 +30,12 @@ services:
       - key: MAIL_PASSWORD
         sync: false
       - key: DB_HOST
-        fromDatabase:
-          name: prolink-db
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: prolink-db
-          property: port
+        sync: false
       - key: DB_NAME
-        fromDatabase:
-          name: prolink-db
-          property: database
+        sync: false
       - key: DB_USERNAME
-        fromDatabase:
-          name: prolink-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: prolink-db
-          property: password
-
-databases:
-  - name: prolink-db
-    plan: free
-    databaseName: prolink
+        sync: false

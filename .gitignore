@@ -38,3 +38,8 @@ application-local.properties
 ### Fichiers de crash JVM ###
 hs_err_pid*.log
 replay_pid*.log
+
+### Variables d'environnement ###
+.env
+.env.*
+!.env.example
