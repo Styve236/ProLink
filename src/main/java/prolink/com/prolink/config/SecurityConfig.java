@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
@@ -64,6 +65,15 @@ public class SecurityConfig {
                 response.sendRedirect("/profil/dashboard");
             }
         };
+    }
+
+    // Redirige proprement (302) vers la page d'accès refusé.
+    // Contrairement à accessDeniedPage (forward interne qui conserve la méthode,
+    // source de 405 sur les POST), on force un GET propre.
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) ->
+                response.sendRedirect("/erreur/acces-refuse");
     }
 
     @Bean
@@ -132,8 +142,10 @@ public class SecurityConfig {
                         .requestMatchers("/offres/*").permitAll()
 
                         // 6. Routes Étudiant / Freelance
+                        //    (postuler passe ici car /offres/* ne matche que les
+                        //    chemins à un segment, pas /offres/{id}/postuler)
                         .requestMatchers(
-                                "/candidatures/postuler/**",
+                                "/offres/*/postuler",
                                 "/documents/upload"
                         ).hasAnyRole("ETUDIANT", "FREELANCE")
 
@@ -167,7 +179,8 @@ public class SecurityConfig {
                 )
 
                 .exceptionHandling(ex -> ex
-                        .accessDeniedPage("/erreur/acces-refuse")                )
+                        .accessDeniedHandler(accessDeniedHandler())
+                )
 
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/ws/**", "/app/**", "/topic/**")

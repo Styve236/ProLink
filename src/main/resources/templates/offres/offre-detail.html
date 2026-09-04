@@ -105,8 +105,15 @@
                             Vous avez déjà postulé à cette offre.
                         </div>
 
-                        <!-- Formulaire si connecté et pas déjà postulé -->
-                        <form th:if="${!dejaPostule}" sec:authorize="isAuthenticated()"
+                        <!-- Connecté mais rôle non autorisé à postuler (ex. recruteur) -->
+                        <div sec:authorize="isAuthenticated() and !hasAnyRole('ETUDIANT','FREELANCE')"
+                             class="alert alert-warning">
+                            Votre rôle ne permet pas de postuler à cette offre.
+                            Les candidatures sont ouvertes aux étudiants et aux freelances.
+                        </div>
+
+                        <!-- Formulaire si Étudiant/Freelance connecté et pas déjà postulé -->
+                        <form th:if="${!dejaPostule}" sec:authorize="hasAnyRole('ETUDIANT','FREELANCE')"
                               th:action="@{/offres/{id}/postuler(id=${offre.id})}"
                               th:object="${candidatureDto}" method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
