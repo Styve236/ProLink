@@ -107,11 +107,21 @@ public class BlogService {
                 .orElseThrow(() -> new IllegalArgumentException("Post introuvable : " + id));
     }
 
-    public void incrementerVues(Long id) {
-        blogPostRepository.findById(id).ifPresent(post -> {
-            post.setNbVues(post.getNbVues() + 1);
-            blogPostRepository.save(post);
-        });
+    /**
+     * Incrémente le compteur de vues d'un post.
+     * - Ignore la vue si le visiteur connecté est l'auteur du post.
+     * - Utilise un incrément atomique (UPDATE ... SET nb_vues = nb_vues + 1)
+     *   pour éviter de perdre des vues en cas de requêtes concurrentes.
+     */
+    public void incrementerVues(Long id, String emailVisiteur) {
+        // L'auteur ne compte pas sa propre consultation
+        if (emailVisiteur != null) {
+            Boolean estAuteur = blogPostRepository.estAuteur(id, emailVisiteur);
+            if (Boolean.TRUE.equals(estAuteur)) {
+                return;
+            }
+        }
+        blogPostRepository.incrementerNbVues(id);
     }
 
     // MES POSTS

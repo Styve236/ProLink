@@ -4,6 +4,7 @@ import prolink.com.prolink.entities.BlogPost;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,16 @@ import java.util.List;
 
 @Repository
 public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
+
+    // Incrément atomique du compteur de vues (concurrent-safe)
+    @Modifying
+    @Query("UPDATE BlogPost p SET p.nbVues = p.nbVues + 1 WHERE p.id = :id")
+    void incrementerNbVues(@Param("id") Long id);
+
+    // Vérifie si l'utilisateur (email) est l'auteur de ce post
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END " +
+            "FROM BlogPost p WHERE p.id = :id AND p.auteur.email = :email")
+    Boolean estAuteur(@Param("id") Long id, @Param("email") String email);
 
     // Tous les posts, du plus récent au plus ancien — page publique
     List<BlogPost> findAllByOrderByDatePublicationDesc();

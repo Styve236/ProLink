@@ -1,6 +1,8 @@
 package prolink.com.prolink.controllers;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +16,10 @@ import prolink.com.prolink.entities.BlogPost;
 import prolink.com.prolink.services.BlogService;
 
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/blog")
@@ -94,13 +100,40 @@ public class BlogController {
     }
 
     // DÉTAIL D'UN POST
+    private static final String COOKIE_VUES = "prolink_articles_vus";
+
     @GetMapping("/{id:[0-9]+}")
     public String detailPost(@PathVariable Long id,
                              Model model,
+                             @CookieValue(value = COOKIE_VUES, required = false) String articlesVusCookie,
+                             HttpServletResponse response,
                              @AuthenticationPrincipal UserDetails userDetails) {
         try {
             BlogPost post = blogService.getPostDetail(id);
-            blogService.incrementerVues(id);
+
+            // Comptage des vues avec déduplication par visiteur (cookie)
+            boolean dejaVu = articlesVusCookie != null
+                    && Arrays.asList(articlesVusCookie.split(",")).contains(String.valueOf(id));
+            if (!dejaVu) {
+                blogService.incrementerVues(id,
+                        userDetails != null ? userDetails.getUsername() : null);
+                // Met à jour le cookie (limité à 200 articles max pour rester léger)
+                Set<String> vus = new LinkedHashSet<>();
+                if (articlesVusCookie != null && !articlesVusCookie.isBlank()) {
+                    vus.addAll(Arrays.asList(articlesVusCookie.split(",")));
+                }
+                vus.add(String.valueOf(id));
+                if (vus.size() > 200) {
+                    vus.remove(vus.iterator().next());
+                }
+                Cookie cookie = new Cookie(COOKIE_VUES,
+                        String.join(",", vus));
+                cookie.setHttpOnly(true);
+                cookie.setPath("/");
+                cookie.setMaxAge(60 * 60 * 24 * 365); // 1 an
+                response.addCookie(cookie);
+            }
+
             model.addAttribute("post", post);
             model.addAttribute("nombreLikesPost", blogService.compterLikesPost(id));
 
