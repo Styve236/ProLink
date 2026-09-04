@@ -70,6 +70,7 @@
                     </div>
 
                     <form th:action="@{/auth/inscription}" th:object="${inscriptionDto}" method="post" enctype="multipart/form-data" novalidate>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <!-- ÉTAPE 1 : Profil & identité -->
                         <div class="step-panel" data-panel="0">

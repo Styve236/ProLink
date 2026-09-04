@@ -63,6 +63,20 @@
         </div>
     </div>
 
+    <!-- Messages flash (succès / erreur candidature) -->
+    <div class="container-xxl pt-0">
+        <div class="container">
+            <div th:if="${succes}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${succes}">Succès</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${erreur}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${erreur}">Erreur</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
     <div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
         <div class="container">
             <div class="row gy-5 gx-4">
@@ -95,6 +109,7 @@
                         <form th:if="${!dejaPostule}" sec:authorize="isAuthenticated()"
                               th:action="@{/offres/{id}/postuler(id=${offre.id})}"
                               th:object="${candidatureDto}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <div class="row g-3">
                                 <div class="col-12">
                                     <textarea th:field="*{messageMotivation}" class="form-control" rows="5"

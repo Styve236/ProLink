@@ -78,6 +78,7 @@
               <div class="alert alert-success" th:if="${succes}" th:text="${succes}"></div>
 
               <form th:action="@{/offres/enregistrer}" th:object="${offreDto}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                   <!-- ✅ Erreurs de validation maintenant DANS le <form> -->
                   <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">

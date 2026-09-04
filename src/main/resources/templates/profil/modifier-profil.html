@@ -95,6 +95,7 @@
                             <hr>
                             <h6 class="mb-3">Changer la photo</h6>
                             <form th:action="@{/profil/photo}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <div class="mb-3">
                                     <input type="file" name="photo" class="form-control" accept="image/*">
                                 </div>
@@ -116,6 +117,7 @@
                         </div>
                         <div class="card-body p-4">
                             <form th:action="@{/profil/modifier/infos}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Prénom</label>
@@ -155,6 +157,7 @@
                         </div>
                         <div class="card-body p-4">
                             <form th:action="@{/profil/modifier/etudiant}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Université</label>
@@ -210,6 +213,7 @@
                         </div>
                         <div class="card-body p-4">
                             <form th:action="@{/profil/modifier/freelance}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Spécialité</label>
@@ -259,6 +263,7 @@
                         </div>
                         <div class="card-body p-4">
                             <form th:action="@{/profil/modifier/recruteur}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Nom de l'entreprise</label>
