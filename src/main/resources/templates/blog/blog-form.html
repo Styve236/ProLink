@@ -40,8 +40,8 @@
                 <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
                 <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
                 <a th:href="@{/blog}" class="nav-item nav-link active">Blog</a>
-                <a th:href="@{/pages/a-propos}" class="nav-item nav-link">À propos</a>
-                <a th:href="@{/pages/contact}" class="nav-item nav-link">Contact</a>
+                <a th:href="@{/a-propos}" class="nav-item nav-link">À propos</a>
+                <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
             </div>
             <div sec:authorize="isAuthenticated()" class="d-none d-lg-block">
                 <a th:href="@{/profil/dashboard}" class="btn btn-primary rounded-0 py-4 px-lg-5">
@@ -131,8 +131,8 @@
             <div class="row g-5">
                 <div class="col-lg-3 col-md-6">
                     <h5 class="text-white mb-4">ProLink</h5>
-                    <a class="btn btn-link text-white-50" th:href="@{/pages/a-propos}">À propos</a>
-                    <a class="btn btn-link text-white-50" th:href="@{/pages/contact}">Contact</a>
+                    <a class="btn btn-link text-white-50" th:href="@{/a-propos}">À propos</a>
+                    <a class="btn btn-link text-white-50" th:href="@{/contact}">Contact</a>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h5 class="text-white mb-4">Liens rapides</h5>
