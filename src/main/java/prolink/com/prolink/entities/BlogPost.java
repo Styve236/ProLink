@@ -39,6 +39,13 @@ public class BlogPost {
     @Column(name = "nb_vues")
     private int nbVues = 0;
 
+    // Média du post (optionnel) : image ou vidéo téléversée
+    @Column(name = "media_url")
+    private String mediaUrl;
+
+    @Column(name = "media_type")
+    private String mediaType;
+
     // L'auteur — tout utilisateur actif peut publier (User stocké en BDD)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auteur_id", nullable = false)
@@ -61,5 +68,17 @@ public class BlogPost {
 
     public int getNombreLikes() {
         return reactions != null ? reactions.size() : 0;
+    }
+
+    public boolean getAUnMedia() {
+        return mediaUrl != null && !mediaUrl.isBlank();
+    }
+
+    public boolean getEstVideo() {
+        return "VIDEO".equalsIgnoreCase(mediaType);
+    }
+
+    public boolean getEstImage() {
+        return "IMAGE".equalsIgnoreCase(mediaType);
     }
 }

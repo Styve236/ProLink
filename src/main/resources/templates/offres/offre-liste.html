@@ -13,6 +13,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
     <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
@@ -121,37 +122,49 @@
                 </p>
             </div>
 
-            <!-- Offres -->
-            <div th:each="offre, stat : ${listeOffres}" class="job-item p-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="row g-4">
-                    <div class="col-sm-auto col-md-3">
-                        <div class="text-center bg-light rounded p-3 h-100 d-flex align-items-center justify-content-center">
-                            <img class="img-fluid" th:src="@{|/img/com-logo-${stat.index % 5 + 1}.jpg|}" alt="" style="width:80px;height:80px;object-fit:cover;">
+            <!-- Offres — carrousel horizontal -->
+            <div th:if="${!listeOffres.isEmpty()}" class="owl-carousel offres-carousel wow fadeInUp" data-wow-delay="0.1s">
+                <div th:each="offre, stat : ${listeOffres}" class="job-item h-100">
+                    <div class="p-4 h-100">
+                        <div class="row g-4 h-100">
+                            <div class="col-12">
+                                <div class="text-center bg-light rounded p-3 d-flex align-items-center justify-content-center" style="height:100px;">
+                                    <img class="img-fluid" th:src="@{|/img/com-logo-${stat.index % 5 + 1}.jpg|}" alt="" style="width:80px;height:80px;object-fit:cover;">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <h5 class="mb-3 text-center" th:text="${offre.titre}">Titre du poste</h5>
+                                <div class="text-center">
+                                    <span class="text-truncate me-3 d-inline-block">
+                                        <i class="fa fa-map-marker-alt text-primary me-2"></i>
+                                        <span th:text="${offre.lieu != null ? offre.lieu : 'Non précisé'}">Lieu</span>
+                                    </span>
+                                    <span class="text-truncate me-3 d-inline-block">
+                                        <i class="far fa-clock text-primary me-2"></i>
+                                        <span th:text="${offre.typeContrat}">Type</span>
+                                    </span>
+                                    <span class="d-inline-block" th:if="${offre.remuneration != null}">
+                                        <i class="far fa-money-bill-alt text-primary me-2"></i>
+                                        <span th:text="${offre.remuneration}">Salaire</span>
+                                    </span>
+                                </div>
+                                <p class="text-muted mt-3 mb-0 text-center" th:text="${#strings.abbreviate(offre.description, 110)}">Description...</p>
+                            </div>
+                            <div class="col-12 d-flex flex-column align-items-center justify-content-end pt-3 border-top">
+                                <span class="badge bg-primary mb-3" th:text="${offre.typeContrat}">CDI</span>
+                                <a th:href="@{/offres/{id}(id=${offre.id})}" class="btn btn-primary w-100">
+                                    Voir l'offre <i class="fa fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm col-md-6">
-                        <h5 class="mb-3" th:text="${offre.titre}">Titre du poste</h5>
-                        <span class="text-truncate me-3">
-                            <i class="fa fa-map-marker-alt text-primary me-2"></i>
-                            <span th:text="${offre.lieu != null ? offre.lieu : 'Non précisé'}">Lieu</span>
-                        </span>
-                        <span class="text-truncate me-3">
-                            <i class="far fa-clock text-primary me-2"></i>
-                            <span th:text="${offre.typeContrat}">Type</span>
-                        </span>
-                        <span class="text-truncate me-0" th:if="${offre.remuneration != null}">
-                            <i class="far fa-money-bill-alt text-primary me-2"></i>
-                            <span th:text="${offre.remuneration}">Salaire</span>
-                        </span>
-                        <p class="text-muted mt-2 mb-0" th:text="${#strings.abbreviate(offre.description, 150)}">Description...</p>
-                    </div>
-                    <div class="col-sm-auto col-md-3 d-flex flex-column align-items-start align-items-md-end justify-content-between">
-                        <span class="badge bg-primary mb-2" th:text="${offre.typeContrat}">CDI</span>
-                        <a th:href="@{/offres/{id}(id=${offre.id})}" class="btn btn-primary">
-                            Voir l'offre <i class="fa fa-arrow-right ms-2"></i>
-                        </a>
-                    </div>
                 </div>
+            </div>
+
+            <!-- Navigation du carrousel (s'affiche s'il y a plusieurs offres) -->
+            <div th:if="${listeOffres.size() > 1}" class="d-flex justify-content-center mt-4">
+                <button class="btn btn-outline-primary me-2 btn-offres-prev"><i class="fa fa-chevron-left"></i></button>
+                <button class="btn btn-outline-primary btn-offres-next"><i class="fa fa-chevron-right"></i></button>
             </div>
 
             <!-- Pagination -->
@@ -222,6 +235,7 @@
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
 <script th:src="@{/lib/wow/wow.min.js}"></script>
 <script th:src="@{/lib/easing/easing.min.js}"></script>
 <script th:src="@{/lib/waypoints/waypoints.min.js}"></script>

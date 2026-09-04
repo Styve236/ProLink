@@ -137,6 +137,16 @@
 
                         <!-- Corps -->
                         <div class="blog-content">
+                            <!-- Média : image ou vidéo -->
+                            <div th:if="${post.aUnMedia}" class="mb-4">
+                                <img th:if="${post.estImage}" th:src="${post.mediaUrl}"
+                                     class="img-fluid rounded w-100" alt="Illustration de l'article"
+                                     style="max-height: 480px; object-fit: cover;">
+                                <video th:if="${post.estVideo}" th:src="${post.mediaUrl}"
+                                       class="w-100 rounded" controls preload="metadata"
+                                       style="max-height: 480px; background:#000;"></video>
+                            </div>
+
                             <p class="lead" th:text="${post.contenu}" style="white-space: pre-line;">Contenu...</p>
                         </div>
 

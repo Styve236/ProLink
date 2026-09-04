@@ -64,6 +64,7 @@ public class BlogController {
     public String enregistrerPost(
             @Valid @ModelAttribute("blogPostDto") prolink.com.prolink.dto.request.BlogPostDto dto,
             BindingResult result,
+            @RequestParam(value = "media", required = false) org.springframework.web.multipart.MultipartFile media,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
@@ -71,10 +72,15 @@ public class BlogController {
             return "blog/blog-form";
         }
 
-        BlogPost post = blogService.publierPost(dto, principal.getName());
-        redirectAttributes.addFlashAttribute("succes",
-                "Votre article a été publié avec succès !");
-        return "redirect:/blog/" + post.getId();
+        try {
+            BlogPost post = blogService.publierPost(dto, principal.getName(), media);
+            redirectAttributes.addFlashAttribute("succes",
+                    "Votre article a été publié avec succès !");
+            return "redirect:/blog/" + post.getId();
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+            return "redirect:/blog/nouvelle";
+        }
     }
 
     // MES POSTS — tout utilisateur connecté

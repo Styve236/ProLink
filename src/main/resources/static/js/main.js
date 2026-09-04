@@ -76,7 +76,33 @@
             }
         }
     });
-    
+
+    // Offres carousel
+    $(".offres-carousel").owlCarousel({
+        autoplay: true,
+        autoplayTimeout: 5000,
+        smartSpeed: 1000,
+        margin: 24,
+        dots: true,
+        loop: true,
+        nav: false,
+        responsive: {
+            0: { items: 1 },
+            768: { items: 2 },
+            1200: { items: 3 }
+        }
+    });
+
+    // Boutons de navigation personnalisés
+    $(".btn-offres-prev").on("click", function (e) {
+        e.preventDefault();
+        $(".offres-carousel").trigger("prev.owl.carousel");
+    });
+    $(".btn-offres-next").on("click", function (e) {
+        e.preventDefault();
+        $(".offres-carousel").trigger("next.owl.carousel");
+    });
+
     // Notification badge auto-refresh
     function updateNotifBadge() {
         var badges = document.querySelectorAll('.notif-badge, [id*="notif"], .badge-notification');
