@@ -51,110 +51,158 @@
 
                     <div class="alert alert-danger" th:if="${erreur}" th:text="${erreur}"></div>
 
+                    <!-- Barre de progression -->
+                    <div class="progress-indicator mb-4">
+                        <div class="step-item active" data-step="0">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">Profil</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="1">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">Sécurité</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="2">
+                            <div class="step-circle">3</div>
+                            <div class="step-label">Profil pro</div>
+                        </div>
+                    </div>
+
                     <form th:action="@{/auth/inscription}" th:object="${inscriptionDto}" method="post" enctype="multipart/form-data" novalidate>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="prenom" class="form-label">Prénom</label>
-                                <input type="text" id="prenom" th:field="*{prenom}" class="form-control py-3">
-                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="nom" class="form-label">Nom</label>
-                                <input type="text" id="nom" th:field="*{nom}" class="form-control py-3">
-                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Adresse email (@gmail.com uniquement)</label>
-                            <input type="email" id="email" th:field="*{email}" class="form-control py-3" placeholder="exemple@gmail.com">
-                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="password" class="form-label">Mot de passe</label>
-                                <input type="password" id="password" th:field="*{password}" class="form-control py-3">
-                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
-                                <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control py-3">
-                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="telephone" class="form-label">Téléphone</label>
-                                <input type="text" id="telephone" th:field="*{telephone}" class="form-control py-3">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="ville" class="form-label">Ville</label>
-                                <input type="text" id="ville" th:field="*{ville}" class="form-control py-3">
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="roleSelect" class="form-label">Je suis...</label>
-                            <select th:field="*{role}" id="roleSelect" class="form-select py-3" onchange="afficherChampsRole()">
-                                <option value="">-- Choisissez votre profil --</option>
-                                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}">ROLE</option>
-                            </select>
-                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
-                        </div>
-
-                        <div id="champsEtudiant" class="role-fields mb-3" style="display:none;">
-                            <div class="row g-3">
+                        <!-- ÉTAPE 1 : Profil & identité -->
+                        <div class="step-panel" data-panel="0">
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label for="universite" class="form-label">Université</label>
-                                    <input type="text" id="universite" th:field="*{universite}" class="form-control py-3">
+                                    <label for="prenom" class="form-label">Prénom</label>
+                                    <input type="text" id="prenom" th:field="*{prenom}" class="form-control py-3">
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}"></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="filiere" class="form-label">Filière</label>
-                                    <input type="text" id="filiere" th:field="*{filiere}" class="form-control py-3">
+                                    <label for="nom" class="form-label">Nom</label>
+                                    <input type="text" id="nom" th:field="*{nom}" class="form-control py-3">
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></div>
                                 </div>
-                                <div class="col-12">
-                                    <label for="niveauEtude" class="form-label">Niveau d'étude</label>
-                                    <input type="text" id="niveauEtude" th:field="*{niveauEtude}" class="form-control py-3" placeholder="Ex: Licence 3, Master 1...">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Adresse email (@gmail.com uniquement)</label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control py-3" placeholder="exemple@gmail.com">
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="telephone" class="form-label">Téléphone</label>
+                                    <input type="text" id="telephone" th:field="*{telephone}" class="form-control py-3">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="ville" class="form-label">Ville</label>
+                                    <input type="text" id="ville" th:field="*{ville}" class="form-control py-3">
                                 </div>
                             </div>
                         </div>
 
-                        <div id="champsFreelance" class="role-fields mb-3" style="display:none;">
-                            <div class="row g-3">
+                        <!-- ÉTAPE 2 : Sécurité -->
+                        <div class="step-panel" data-panel="1" style="display:none;">
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label for="specialite" class="form-label">Spécialité</label>
-                                    <input type="text" id="specialite" th:field="*{specialite}" class="form-control py-3" placeholder="Ex: Développement web">
+                                    <label for="password" class="form-label">Mot de passe</label>
+                                    <div class="input-group">
+                                        <input type="password" id="password" th:field="*{password}" class="form-control py-3">
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" tabindex="-1">
+                                            <i class="far fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="tjm" class="form-label">TJM (taux journalier)</label>
-                                    <input type="text" id="tjm" th:field="*{tjm}" class="form-control py-3">
+                                    <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+                                    <div class="input-group">
+                                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control py-3">
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" data-target="confirmPassword" tabindex="-1">
+                                            <i class="far fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="champsRecruteur" class="role-fields mb-3" style="display:none;">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="nomEntreprise" class="form-label">Nom de l'entreprise</label>
-                                    <input type="text" id="nomEntreprise" th:field="*{nomEntreprise}" class="form-control py-3">
+                        <!-- ÉTAPE 3 : Rôle & profil professionnel -->
+                        <div class="step-panel" data-panel="2" style="display:none;">
+                            <div class="mb-4">
+                                <label for="roleSelect" class="form-label">Je suis...</label>
+                                <select th:field="*{role}" id="roleSelect" class="form-select py-3" onchange="afficherChampsRole()">
+                                    <option value="">-- Choisissez votre profil --</option>
+                                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}">ROLE</option>
+                                </select>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+                            </div>
+
+                            <div id="champsEtudiant" class="role-fields mb-3" style="display:none;">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="universite" class="form-label">Université</label>
+                                        <input type="text" id="universite" th:field="*{universite}" class="form-control py-3">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="filiere" class="form-label">Filière</label>
+                                        <input type="text" id="filiere" th:field="*{filiere}" class="form-control py-3">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="niveauEtude" class="form-label">Niveau d'étude</label>
+                                        <input type="text" id="niveauEtude" th:field="*{niveauEtude}" class="form-control py-3" placeholder="Ex: Licence 3, Master 1...">
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="secteurActivite" class="form-label">Secteur d'activité</label>
-                                    <input type="text" id="secteurActivite" th:field="*{secteurActivite}" class="form-control py-3">
+                            </div>
+
+                            <div id="champsFreelance" class="role-fields mb-3" style="display:none;">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="specialite" class="form-label">Spécialité</label>
+                                        <input type="text" id="specialite" th:field="*{specialite}" class="form-control py-3" placeholder="Ex: Développement web">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="tjm" class="form-label">TJM (taux journalier)</label>
+                                        <input type="text" id="tjm" th:field="*{tjm}" class="form-control py-3">
+                                    </div>
                                 </div>
+                            </div>
+
+                            <div id="champsRecruteur" class="role-fields mb-3" style="display:none;">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="nomEntreprise" class="form-label">Nom de l'entreprise</label>
+                                        <input type="text" id="nomEntreprise" th:field="*{nomEntreprise}" class="form-control py-3">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="secteurActivite" class="form-label">Secteur d'activité</label>
+                                        <input type="text" id="secteurActivite" th:field="*{secteurActivite}" class="form-control py-3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="photo" class="form-label">Photo de profil (optionnelle)</label>
+                                <input type="file" id="photo" name="photo" class="form-control py-3" accept="image/*">
+                                <div class="form-text">Formats acceptés : JPG, PNG, GIF</div>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="photo" class="form-label">Photo de profil (optionnelle)</label>
-                            <input type="file" id="photo" name="photo" class="form-control py-3" accept="image/*">
-                            <div class="form-text">Formats acceptés : JPG, PNG, GIF</div>
+                        <!-- Navigation étapes -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button type="button" class="btn btn-secondary w-25 py-3" id="btnPrecedent" onclick="changerEtape(-1)" style="display:none;">
+                                <i class="fas fa-arrow-left me-2"></i>Précédent
+                            </button>
+                            <button type="button" class="btn btn-primary py-3 ms-auto" id="btnSuivant" onclick="changerEtape(1)" style="width:28%;">
+                                Suivant<i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                            <button type="submit" class="btn btn-primary py-3 ms-auto" id="btnValider" style="display:none;width:28%;">
+                                <i class="fas fa-user-plus me-2"></i>Créer mon compte
+                            </button>
                         </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-3 mt-2">Créer mon compte</button>
                     </form>
 
                     <p class="text-center mt-4 mb-0">
@@ -178,6 +226,9 @@
 <script th:src="@{/js/main.js}"></script>
 
 <script>
+    var etapeCourante = 0;
+    var nbEtapes = 3;
+
     function afficherChampsRole() {
         document.querySelectorAll('.role-fields').forEach(function (el) {
             el.style.display = 'none';
@@ -193,7 +244,87 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', afficherChampsRole);
+    function mettreAJourProgression() {
+        document.querySelectorAll('.step-item').forEach(function (item) {
+            item.classList.toggle('active', parseInt(item.dataset.step) <= etapeCourante);
+        });
+        document.querySelectorAll('.step-line').forEach(function (line) {
+            line.classList.toggle('active', false);
+        });
+        document.querySelectorAll('.step-item').forEach(function (item, i) {
+            if (i < etapeCourante) {
+                var line = item.previousElementSibling;
+                if (line && line.classList.contains('step-line')) line.classList.add('active');
+            }
+        });
+
+        document.querySelectorAll('.step-panel').forEach(function (panel) {
+            panel.style.display = parseInt(panel.dataset.panel) === etapeCourante ? 'block' : 'none';
+        });
+
+        document.getElementById('btnPrecedent').style.display = etapeCourante === 0 ? 'none' : 'block';
+        document.getElementById('btnSuivant').style.display = etapeCourante === nbEtapes - 1 ? 'none' : 'block';
+        document.getElementById('btnValider').style.display = etapeCourante === nbEtapes - 1 ? 'block' : 'none';
+    }
+
+    function validerEtape() {
+        var ok = true;
+        var panneau = document.querySelector('.step-panel[data-panel="' + etapeCourante + '"]');
+        panneau.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], select').forEach(function (champ) {
+            champ.classList.remove('is-invalid');
+
+            if (champ.id === 'password' && champ.value.length < 8) {
+                ok = false;
+                champ.classList.add('is-invalid');
+            } else if (champ.id === 'confirmPassword' && champ.value !== document.getElementById('password').value) {
+                ok = false;
+                champ.classList.add('is-invalid');
+            } else if (!champ.value.trim() &&
+                       (champ.id === 'prenom' || champ.id === 'nom' || champ.id === 'email' ||
+                        champ.id === 'password' || champ.id === 'confirmPassword' || champ.id === 'roleSelect')) {
+                ok = false;
+                champ.classList.add('is-invalid');
+            }
+        });
+
+        if (etapeCourante === 2 && !document.getElementById('roleSelect').value) {
+            document.getElementById('roleSelect').classList.add('is-invalid');
+            ok = false;
+        }
+
+        return ok;
+    }
+
+    function changerEtape(direction) {
+        if (direction > 0 && !validerEtape()) {
+            return;
+        }
+        etapeCourante += direction;
+        if (etapeCourante < 0) etapeCourante = 0;
+        if (etapeCourante > nbEtapes - 1) etapeCourante = nbEtapes - 1;
+        mettreAJourProgression();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        afficherChampsRole();
+        mettreAJourProgression();
+
+        document.querySelectorAll('.toggle-password').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var cible = document.getElementById(this.dataset.target);
+                if (cible.type === 'password') {
+                    cible.type = 'text';
+                    this.querySelector('i').classList.remove('fa-eye');
+                    this.querySelector('i').classList.add('fa-eye-slash');
+                } else {
+                    cible.type = 'password';
+                    this.querySelector('i').classList.remove('fa-eye-slash');
+                    this.querySelector('i').classList.add('fa-eye');
+                }
+            });
+        });
+    });
 </script>
 
 </body>

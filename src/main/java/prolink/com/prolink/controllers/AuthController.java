@@ -12,12 +12,22 @@ import prolink.com.prolink.dto.request.InscriptionDto;
 import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.services.AuthService;
 import prolink.com.prolink.services.OffreService;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
 
     private final AuthService authService;
+
+    /** Rôles proposés à l'inscription (exclut ADMIN, réservé aux administrateurs). */
+    private List<RoleUtilisateur> rolesPublics() {
+        return Arrays.stream(RoleUtilisateur.values())
+                .filter(r -> r != RoleUtilisateur.ADMIN)
+                .collect(Collectors.toList());
+    }
     private final OffreService offreService;
 
     public AuthController(AuthService authService, OffreService offreService) {
@@ -111,7 +121,7 @@ public class AuthController {
         }
 
         model.addAttribute("inscriptionDto", new InscriptionDto());
-        model.addAttribute("roles", RoleUtilisateur.values());
+        model.addAttribute("roles", rolesPublics());
         return "auth/inscription";
     }
 
@@ -123,7 +133,7 @@ public class AuthController {
             RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
-            model.addAttribute("roles", RoleUtilisateur.values());
+            model.addAttribute("roles", rolesPublics());
             return "auth/inscription";
         }
 
@@ -136,7 +146,7 @@ public class AuthController {
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("erreur", e.getMessage());
-            model.addAttribute("roles", RoleUtilisateur.values());
+            model.addAttribute("roles", rolesPublics());
             return "auth/inscription";
         }
     }

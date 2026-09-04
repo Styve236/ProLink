@@ -61,8 +61,13 @@
                         </div>
                         <div class="mb-4">
                             <label for="password" class="form-label">Mot de passe</label>
-                            <input type="password" id="password" name="password" class="form-control py-3"
-                                   placeholder="••••••••" required>
+                            <div class="input-group">
+                                <input type="password" id="password" name="password" class="form-control py-3"
+                                       placeholder="••••••••" required>
+                                <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" tabindex="-1">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 py-3">Se connecter</button>
                         <div class="text-center mt-3">
@@ -88,5 +93,21 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/main.js}"></script>
+<script>
+    document.querySelectorAll('.toggle-password').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var cible = document.getElementById(this.dataset.target);
+            if (cible.type === 'password') {
+                cible.type = 'text';
+                this.querySelector('i').classList.remove('fa-eye');
+                this.querySelector('i').classList.add('fa-eye-slash');
+            } else {
+                cible.type = 'password';
+                this.querySelector('i').classList.remove('fa-eye-slash');
+                this.querySelector('i').classList.add('fa-eye');
+            }
+        });
+    });
+</script>
 </body>
 </html>

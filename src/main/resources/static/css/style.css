@@ -391,3 +391,75 @@
     padding-right: 0;
     border-right: none;
 }
+
+/* ============================================
+   Formulaire d'inscription en étapes (wizard)
+   ============================================ */
+.progress-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 0 0 auto;
+}
+
+.step-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #6c757d;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.step-label {
+    font-size: 13px;
+    margin-top: 8px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.step-item.active .step-circle {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 176, 116, 0.35);
+}
+
+.step-item.active .step-label {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.step-line {
+    flex: 1;
+    height: 3px;
+    background: #dee2e6;
+    border-radius: 2px;
+    margin: 0 8px;
+    margin-bottom: 28px;
+    transition: background 0.3s ease;
+}
+
+.step-line.active {
+    background: var(--primary);
+}
+
+.step-panel {
+    animation: fadeStep 0.25s ease;
+}
+
+@keyframes fadeStep {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
