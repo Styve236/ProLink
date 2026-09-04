@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mes articles - ProLink</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link th:href="@{/img/favicon.ico}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/animate/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-xxl bg-white p-0">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a th:href="@{/}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
+            <h1 class="m-0 text-primary">ProLink</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a th:href="@{/}" class="nav-item nav-link">Accueil</a>
+                <a th:href="@{/offres}" class="nav-item nav-link">Offres</a>
+                <a th:href="@{/blog}" class="nav-item nav-link">Blog</a>
+                <a th:href="@{/pages/contact}" class="nav-item nav-link">Contact</a>
+            </div>
+            <div sec:authorize="isAuthenticated()" class="d-none d-lg-block">
+                <a th:href="@{/profil/dashboard}" class="btn btn-primary rounded-0 py-4 px-lg-5">
+                    Mon tableau de bord<i class="fa fa-arrow-right ms-3"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="container-xxl py-5 bg-dark page-header mb-5">
+        <div class="container my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Mes articles</h1>
+        </div>
+    </div>
+
+    <div class="container-xxl py-5 pt-0">
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Vos publications</h4>
+                <a th:href="@{/blog/nouvelle}" class="btn btn-primary">
+                    <i class="fa fa-pen me-2"></i>Nouvel article
+                </a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(mesPosts)}" class="text-center py-5">
+                <i class="fa fa-newspaper fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted">Vous n'avez pas encore publié d'article</h4>
+                <a th:href="@{/blog/nouvelle}" class="btn btn-primary mt-2">Écrire votre premier article</a>
+            </div>
+
+            <div class="table-responsive" th:if="${!#lists.isEmpty(mesPosts)}">
+                <table class="table table-hover bg-white">
+                    <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Date</th>
+                        <th class="text-center">J'aime</th>
+                        <th class="text-center">Commentaires</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p, st : ${mesPosts}">
+                        <td th:text="${st.count}">1</td>
+                        <td><a th:href="@{/blog/{id}(id=${p.id})}" class="text-decoration-none"
+                               th:text="${p.titre}">Titre</a></td>
+                        <td th:text="${#temporals.format(p.datePublication, 'dd/MM/yyyy')}">Date</td>
+                        <td class="text-center" th:text="${comptesLikes.containsKey(p.id) ? comptesLikes.get(p.id) : 0}">0</td>
+                        <td class="text-center" th:text="${comptesCommentaires.containsKey(p.id) ? comptesCommentaires.get(p.id) : 0}">0</td>
+                        <td class="text-center">
+                            <a th:href="@{/blog/{id}(id=${p.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <form th:action="@{/blog/{id}/supprimer(id=${p.id})}" method="post"
+                                  class="d-inline" onsubmit="return confirm('Supprimer cet article ?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/lib/wow/wow.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

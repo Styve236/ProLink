@@ -150,4 +150,33 @@ public class NotificationService {
                 "/connexions/recues"
         );
     }
+
+    // ← MÉTHODES AJOUTÉES — Blog
+    public void notifierNouveauCommentaire(User cible, User auteur, Long postId, String titrePost) {
+        creer(
+                cible,
+                auteur.getNomComplet() + " a commenté votre post \"" + titrePost + "\".",
+                TypeNotification.NOUVEAU_COMMENTAIRE,
+                "/blog/" + postId
+        );
+    }
+
+    public void notifierNouveauLike(User cible, User auteur, Long postId, String titrePost) {
+        creer(
+                cible,
+                auteur.getNomComplet() + " a aimé votre post \"" + titrePost + "\".",
+                TypeNotification.NOUVEAU_LIKE,
+                "/blog/" + postId
+        );
+    }
+
+    // Appelée par BlogService quand l'admin retire un post
+    public void creerNotificationPostRetire(User auteur, String titrePost, Long postId) {
+        creer(
+                auteur,
+                "Votre post \"" + titrePost + "\" a été retiré par un administrateur.",
+                TypeNotification.POST_RETIRE,
+                "/blog/"
+        );
+    }
 }

@@ -43,3 +43,22 @@ replay_pid*.log
 .env
 .env.*
 !.env.example
+
+### Fichiers projet IDE / artefacts locaux ###
+ProLink.bpj
+ProLink.prj
+*.moo
+*.bpj
+*.prj
+dep-tree.txt
+
+### Logs d'exécution locaux ###
+startup.log
+startup.err
+
+### Données d'upload locales (remplacées par le disque Render /data/uploads) ###
+uploads/
+
+### Seeds de démo obsolètes (fusionnés dans seed-demo.sql) ###
+seed-demo-profils.sql
+seed-demo-recruteurs.sql

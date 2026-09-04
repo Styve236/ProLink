@@ -97,7 +97,24 @@ public class SecurityConfig {
                         // 3. Admin uniquement
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // 4. Routes Recruteur — AVANT /offres/{id} pour éviter le conflit de pattern
+                        // 4. Blog : actions d'écriture réservées aux utilisateurs connectés
+                        //    (doit être AVANT le matcher générique /blog/*)
+                        .requestMatchers(
+                                "/blog/enregistrer",
+                                "/blog/nouvelle",
+                                "/blog/mes-posts",
+                                "/blog/*/commenter",
+                                "/blog/*/like",
+                                "/blog/*/supprimer"
+                        ).authenticated()
+
+                        // 4bis. Blog : lecture publique
+                        .requestMatchers(
+                                "/blog",
+                                "/blog/*"
+                        ).permitAll()
+
+                        // 5. Routes Recruteur — AVANT /offres/{id} pour éviter le conflit de pattern
                         .requestMatchers(
                                 "/offres/offre-form",
                                 "/offres/nouvelle",
