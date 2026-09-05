@@ -9,6 +9,7 @@ import prolink.com.prolink.enums.StatutOffre;
 import prolink.com.prolink.repositories.CandidatureRepository;
 import prolink.com.prolink.repositories.JobOfferRepository;
 import prolink.com.prolink.repositories.UserRepository;
+import prolink.com.prolink.security.RequiertCompteValide;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +60,7 @@ public class CandidatureService {
      * @param emailCandidat Email du postulant connecté
      */
     @PreAuthorize("hasAnyRole('ETUDIANT', 'FREELANCE')")
+    @RequiertCompteValide
     public Candidature postuler(Long offreId, CandidatureDto dto, String emailCandidat) {
 
         User candidat = userRepository.findByEmail(emailCandidat)

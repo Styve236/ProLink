@@ -49,6 +49,14 @@ public class AuthService {
     // Préfixe d'URL public des photos (mappé par WebMvcConfig vers app.upload-dir)
     private static final String URL_PREFIX = "/uploads/";
 
+    // Même politique que l'inscription (InscriptionDto) — au moins 8 caractères,
+    // majuscule, minuscule, chiffre et caractère spécial obligatoires
+    private static final String MOT_DE_PASSE_FORT =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$";
+    private static final String MESSAGE_MOT_DE_PASSE_FORT =
+            "Le mot de passe doit contenir au moins 8 caractères avec majuscule, " +
+                    "minuscule, chiffre et caractère spécial.";
+
     private final String photosDir;
     private final UserRepository userRepository;
     private final EtudiantRepository etudiantRepository;
@@ -58,6 +66,11 @@ public class AuthService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+
+    // URL publique de l'application (localhost en dev, domaine Render en prod)
+    // surchargeable via la variable d'environnement APP_BASE_URL
+    @org.springframework.beans.factory.annotation.Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     public AuthService(@org.springframework.beans.factory.annotation.Value("${app.upload-dir:uploads/}") String uploadDir,
                        UserRepository userRepository,
@@ -244,7 +257,9 @@ public class AuthService {
         PasswordResetToken resetToken = new PasswordResetToken(token, user, 60);
         passwordResetTokenRepository.save(resetToken);
 
-        String lien = "http://localhost:8080/auth/reinitialiser-mot-de-passe?token=" + token;
+        String base = baseUrl.endsWith("/")
+                ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+        String lien = base + "/auth/reinitialiser-mot-de-passe?token=" + token;
         String contenu = "Bonjour,\n\n" +
                 "Vous avez demandé la réinitialisation de votre mot de passe ProLink.\n\n" +
                 "Cliquez sur le lien ci-dessous (valable 60 minutes) :\n" +
@@ -267,6 +282,10 @@ public class AuthService {
 
         if (!nouveauMotDePasse.equals(confirmation)) {
             throw new IllegalArgumentException("Les mots de passe ne correspondent pas.");
+        }
+
+        if (!nouveauMotDePasse.matches(MOT_DE_PASSE_FORT)) {
+            throw new IllegalArgumentException(MESSAGE_MOT_DE_PASSE_FORT);
         }
 
         User user = resetToken.getUser();

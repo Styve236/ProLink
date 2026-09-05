@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import prolink.com.prolink.security.RequiertCompteValide;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ public class OffreService {
     private final NotificationService notificationService;
 
     @PreAuthorize("hasRole('RECRUTEUR')")
+    @RequiertCompteValide
     public JobOffer publierOffre(OffreDto dto, String emailRecruteur) {
         Recruteur recruteur = recruteurRepository.findByEmail(emailRecruteur)
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -53,6 +55,7 @@ public class OffreService {
     }
 
     @PreAuthorize("hasRole('RECRUTEUR')")
+    @RequiertCompteValide
     public JobOffer modifierOffre(Long offreId, OffreDto dto, String emailRecruteur) {
         JobOffer offre = getOffreParId(offreId);
 

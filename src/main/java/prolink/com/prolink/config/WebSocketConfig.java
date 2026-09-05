@@ -30,7 +30,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:8080", "http://127.0.0.1:8080")
+                .setAllowedOriginPatterns(
+                        "http://localhost:*",
+                        "http://127.0.0.1:*",
+                        "https://prolink-1-qg1s.onrender.com"
+                )
                 .addInterceptors(handshakeInterceptor())
                 .withSockJS();
     }

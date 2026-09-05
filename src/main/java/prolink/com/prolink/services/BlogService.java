@@ -17,6 +17,7 @@ import prolink.com.prolink.repositories.BlogPostRepository;
 import prolink.com.prolink.repositories.CommentaireRepository;
 import prolink.com.prolink.repositories.ReactionRepository;
 import prolink.com.prolink.repositories.UserRepository;
+import prolink.com.prolink.security.RequiertCompteValide;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class BlogService {
     private String uploadDir;
 
     // PUBLIER UN POST — tout utilisateur actif
+    @RequiertCompteValide
     public BlogPost publierPost(BlogPostDto dto, String email, MultipartFile media) {
         User auteur = getUser(email);
         BlogPost post = new BlogPost();
@@ -136,6 +138,7 @@ public class BlogService {
     }
 
     // COMMENTER
+    @RequiertCompteValide
     public Commentaire commenter(Long postId, String contenu, String email) {
         User auteur = getUser(email);
         BlogPost post = blogPostRepository.findById(postId)
@@ -156,6 +159,7 @@ public class BlogService {
     }
 
     // LIKE / UNLIKE (toggle)
+    @RequiertCompteValide
     public boolean toggleLike(Long postId, String email) {
         User utilisateur = getUser(email);
         BlogPost post = blogPostRepository.findById(postId)

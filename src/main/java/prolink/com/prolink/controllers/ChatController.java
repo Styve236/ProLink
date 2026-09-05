@@ -15,6 +15,8 @@ import prolink.com.prolink.repositories.ChatMessageRepository;
 import prolink.com.prolink.repositories.MessageRepository;
 import prolink.com.prolink.repositories.UserRepository;
 import prolink.com.prolink.services.NotificationService;
+import prolink.com.prolink.exceptions.CompteNonValideException;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -130,6 +132,18 @@ public class ChatController {
         );
 
         messagingTemplate.convertAndSend("/topic/chat." + roomId, frappe);
+    }
+
+    // Compte non validé (EN_ATTENTE) — renvoie une erreur claire au client
+    @MessageExceptionHandler(CompteNonValideException.class)
+    public void gererCompteNonValide(CompteNonValideException e, Principal principal) {
+        if (principal != null) {
+            messagingTemplate.convertAndSendToUser(
+                    principal.getName(),
+                    "/queue/erreurs",
+                    Map.of("erreur", e.getMessage())
+            );
+        }
     }
 
     // UTILITAIRES PRIVÉS

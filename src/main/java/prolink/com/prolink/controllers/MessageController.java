@@ -12,6 +12,7 @@ import prolink.com.prolink.entities.User;
 import prolink.com.prolink.repositories.MessageRepository;
 import prolink.com.prolink.repositories.UserRepository;
 import prolink.com.prolink.services.NotificationService;
+import prolink.com.prolink.security.RequiertCompteValide;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -72,6 +73,7 @@ public class MessageController {
     }
 
     @PostMapping("/envoyer/{idDestinataire}")
+    @RequiertCompteValide
     public String envoyerMessage(@PathVariable Long idDestinataire,
                                  @RequestParam String contenu,
                                  @AuthenticationPrincipal UserDetails userDetails,

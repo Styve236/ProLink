@@ -108,6 +108,68 @@ public class OffreController {
         }
     }
 
+    // FORMULAIRE MODIFICATION D'OFFRE — Recruteur propriétaire uniquement
+    @GetMapping("/{id:[0-9]+}/modifier")
+    public String afficherFormulaireModification(@PathVariable Long id,
+                                                 Model model,
+                                                 Principal principal) {
+        try {
+            JobOffer offre = offreService.getOffreParId(id);
+            if (!offre.getRecruteur().getEmail().equals(principal.getName())) {
+                return "redirect:/offres/mes-offres";
+            }
+
+            OffreDto dto = new OffreDto();
+            dto.setTitre(offre.getTitre());
+            dto.setDescription(offre.getDescription());
+            dto.setTypeContrat(offre.getTypeContrat());
+            dto.setLieu(offre.getLieu());
+            dto.setRemuneration(offre.getRemuneration());
+            dto.setCompetencesRequises(offre.getCompetencesRequises());
+            dto.setExperienceRequise(offre.getExperienceRequise());
+            dto.setDateLimite(offre.getDateLimite());
+
+            model.addAttribute("offreDto", dto);
+            model.addAttribute("offre", offre);
+            model.addAttribute("modeEdition", true);
+            return "offres/offre-form";
+
+        } catch (Exception e) {
+            return "redirect:/offres/mes-offres";
+        }
+    }
+
+    // ENREGISTRER LES MODIFICATIONS — Recruteur propriétaire uniquement
+    @PostMapping("/{id:[0-9]+}/modifier")
+    public String modifierOffre(@PathVariable Long id,
+                                @Valid @ModelAttribute("offreDto") OffreDto dto,
+                                BindingResult result,
+                                Model model,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            try {
+                JobOffer offre = offreService.getOffreParId(id);
+                model.addAttribute("offre", offre);
+                model.addAttribute("modeEdition", true);
+            } catch (Exception ignore) {
+                // L'offre n'existe plus — on retombe sur le mode création
+            }
+            return "offres/offre-form";
+        }
+
+        try {
+            offreService.modifierOffre(id, dto, principal.getName());
+            redirectAttributes.addFlashAttribute("succes",
+                    "Votre offre a été modifiée.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+        }
+
+        return "redirect:/offres/mes-offres";
+    }
+
     // MES OFFRES — Recruteur uniquement
     @GetMapping("/mes-offres")
     public String voirMesOffres(Model model, Principal principal) {

@@ -117,10 +117,9 @@
                         <div class="col-md-2 text-center">
                             <!-- Statut avec badge coloré -->
                             <span th:switch="${offre.statut.name()}">
-                                <span th:case="'APPROUVE'" class="badge bg-success fs-6">Approuvée</span>
+                                <span th:case="'APPROUVEE'" class="badge bg-success fs-6">Approuvée</span>
                                 <span th:case="'EN_ATTENTE'" class="badge bg-warning text-dark fs-6">En attente</span>
-                                <span th:case="'REJETE'" class="badge bg-danger fs-6">Rejetée</span>
-                                <span th:case="'ARCHIVE'" class="badge bg-secondary fs-6">Archivée</span>
+                                <span th:case="'ARCHIVEE'" class="badge bg-secondary fs-6">Archivée</span>
                                 <span th:case="*" class="badge bg-secondary fs-6" th:text="${offre.statut}"></span>
                             </span>
                         </div>
@@ -134,12 +133,16 @@
                             <a th:href="@{/offres/{id}(id=${offre.id})}" class="btn btn-sm btn-outline-primary">
                                 <i class="fa fa-eye me-1"></i>Voir
                             </a>
+                            <a th:href="@{/offres/{id}/modifier(id=${offre.id})}" class="btn btn-sm btn-outline-info"
+                               th:if="${offre.statut.name() != 'APPROUVEE' and offre.statut.name() != 'ARCHIVEE'}">
+                                <i class="fa fa-pen me-1"></i>Modifier
+                            </a>
                             <a th:href="@{/offres/{id}/candidatures(id=${offre.id})}" class="btn btn-sm btn-outline-secondary"
                                th:if="${#lists.size(offre.candidatures) > 0}">
                                 <i class="fa fa-users me-1"></i>Candidats
                             </a>
                             <form th:action="@{/offres/{id}/archiver(id=${offre.id})}" method="post"
-                                  th:if="${offre.statut.name() != 'ARCHIVE'}"
+                                  th:if="${offre.statut.name() != 'ARCHIVEE'}"
                                   onsubmit="return confirm('Archiver cette offre ?')">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <button type="submit" class="btn btn-sm btn-outline-warning w-100">
@@ -150,11 +153,11 @@
 
                     </div>
 
-                    <!-- Commentaire admin si rejeté -->
-                    <div th:if="${offre.statut.name() == 'REJETE' and offre.commentaireAdmin != null}"
+                    <!-- Commentaire admin si offre rejetée/refusée (motif de rejet) -->
+                    <div th:if="${offre.commentaireAdmin != null}"
                          class="alert alert-danger mt-3 mb-0 py-2">
                         <i class="fa fa-info-circle me-2"></i>
-                        <strong>Motif de rejet :</strong> <span th:text="${offre.commentaireAdmin}"></span>
+                        <strong>Motif du rejet :</strong> <span th:text="${offre.commentaireAdmin}"></span>
                     </div>
                 </div>
             </div>
