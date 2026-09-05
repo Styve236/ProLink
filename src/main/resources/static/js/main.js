@@ -122,5 +122,8 @@
     else document.addEventListener('DOMContentLoaded', updateNotifBadge);
     setInterval(updateNotifBadge, 15000);
 
+    // ===== MODE SOMBRE / CLAIR — charge le script dédié (source unique) =====
+    $.getScript('/js/dark-mode.js');
+
 })(jQuery);
 
