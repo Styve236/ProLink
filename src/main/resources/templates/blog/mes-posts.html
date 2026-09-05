@@ -46,7 +46,8 @@
     <!-- Header -->
     <div class="container-xxl py-5 bg-dark page-header mb-5">
         <div class="container my-5 pt-5 pb-4">
-            <h1 class="display-3 text-white mb-3 animated slideInDown">Mes articles</h1>
+            <h1 class="display-3 text-white mb-3 animated slideInDown"
+                th:text="${estAdmin} ? 'Gestion des articles' : 'Mes articles'">Articles</h1>
         </div>
     </div>
 
@@ -54,16 +55,28 @@
         <div class="container">
 
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0">Vos publications</h4>
-                <a th:href="@{/blog/nouvelle}" class="btn btn-primary">
+                <h4 class="mb-0" th:text="${estAdmin} ? 'Tous les articles publiés' : 'Vos publications'">Vos publications</h4>
+                <a th:href="@{/blog/nouvelle}" class="btn btn-primary" sec:authorize="!hasRole('ADMIN')">
                     <i class="fa fa-pen me-2"></i>Nouvel article
                 </a>
             </div>
 
+            <!-- Messages flash -->
+            <div th:if="${succes}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${succes}">Succès</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${erreur}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${erreur}">Erreur</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
             <div th:if="${#lists.isEmpty(mesPosts)}" class="text-center py-5">
                 <i class="fa fa-newspaper fa-4x text-muted mb-4"></i>
-                <h4 class="text-muted">Vous n'avez pas encore publié d'article</h4>
-                <a th:href="@{/blog/nouvelle}" class="btn btn-primary mt-2">Écrire votre premier article</a>
+                <h4 class="text-muted"
+                    th:text="${estAdmin} ? 'Aucun article publié sur la plateforme' : 'Vous n''avez pas encore publié d''article'">Aucun article</h4>
+                <a th:href="@{/blog/nouvelle}" class="btn btn-primary mt-2"
+                   sec:authorize="!hasRole('ADMIN')">Écrire votre premier article</a>
             </div>
 
             <div class="table-responsive" th:if="${!#lists.isEmpty(mesPosts)}">
@@ -72,6 +85,7 @@
                     <tr>
                         <th>#</th>
                         <th>Titre</th>
+                        <th sec:authorize="hasRole('ADMIN')">Auteur</th>
                         <th>Date</th>
                         <th class="text-center">J'aime</th>
                         <th class="text-center">Commentaires</th>
@@ -83,6 +97,7 @@
                         <td th:text="${st.count}">1</td>
                         <td><a th:href="@{/blog/{id}(id=${p.id})}" class="text-decoration-none"
                                th:text="${p.titre}">Titre</a></td>
+                        <td sec:authorize="hasRole('ADMIN')" th:text="${p.auteur.nomComplet}">Auteur</td>
                         <td th:text="${#temporals.format(p.datePublication, 'dd/MM/yyyy')}">Date</td>
                         <td class="text-center" th:text="${comptesLikes.containsKey(p.id) ? comptesLikes.get(p.id) : 0}">0</td>
                         <td class="text-center" th:text="${comptesCommentaires.containsKey(p.id) ? comptesCommentaires.get(p.id) : 0}">0</td>

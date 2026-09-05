@@ -127,6 +127,10 @@ public class BlogService {
     // MES POSTS
     @Transactional(readOnly = true)
     public java.util.List<BlogPost> getMesPosts(String email) {
+        if (estAdmin(email)) {
+            // L'administrateur voit tous les articles publiés (pour modération/suppression)
+            return blogPostRepository.findAllByOrderByDatePublicationDesc();
+        }
         User auteur = getUser(email);
         return blogPostRepository.findByAuteur_IdOrderByDatePublicationDesc(auteur.getId());
     }
@@ -323,7 +327,7 @@ public class BlogService {
         return nomFichier.substring(nomFichier.lastIndexOf('.') + 1);
     }
 
-    private boolean estAdmin(String email) {
+    public boolean estAdmin(String email) {
         return org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));

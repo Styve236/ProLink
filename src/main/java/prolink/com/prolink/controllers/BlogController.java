@@ -89,13 +89,15 @@ public class BlogController {
         }
     }
 
-    // MES POSTS — tout utilisateur connecté
+    // MES POSTS — tout utilisateur connecté (l'admin voit TOUS les posts + suppression)
     @GetMapping("/mes-posts")
     public String voirMesPosts(Model model, Principal principal) {
+        String email = principal.getName();
         model.addAttribute("mesPosts",
-                blogService.getMesPosts(principal.getName()));
+                blogService.getMesPosts(email));
         model.addAttribute("comptesCommentaires", blogService.compterCommentaires());
         model.addAttribute("comptesLikes", blogService.compterLikes());
+        model.addAttribute("estAdmin", blogService.estAdmin(email));
         return "blog/mes-posts";
     }
 
@@ -198,6 +200,10 @@ public class BlogController {
                     "Le post a été supprimé.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+        }
+        // Retour vers la liste de gestion (admin) ou la page d'accueil du blog
+        if (blogService.estAdmin(principal.getName())) {
+            return "redirect:/blog/mes-posts";
         }
         return "redirect:/blog";
     }
