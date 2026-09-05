@@ -2,8 +2,8 @@
    ProLink — Mode clair / sombre
    - Persiste le choix dans localStorage (clé : prolink-theme)
    - Respecte la préférence système au premier chargement
-   - Injecte le bouton de bascule dans la navbar (ou en haut à
-     droite si la page n'a pas de navbar)
+   - Injecte un bouton de bascule FLOTTANT (fixe, en bas à droite)
+     pour ne jamais modifier la mise en page des navbars
    - Applique l'attribut data-theme="dark" sur <html>
    ============================================================ */
 (function () {
@@ -54,22 +54,10 @@
         var btn = creerBouton();
         if (!btn) return;
 
-        // 1. Dans la navbar, à côté des liens (préféré)
-        var collapse = document.querySelector(".navbar-collapse");
-        if (collapse) {
-            collapse.appendChild(btn);
-            return;
-        }
-
-        // 2. Dans la navbar sans menu repliable
-        var nav = document.querySelector("nav.navbar");
-        if (nav) {
-            nav.appendChild(btn);
-            return;
-        }
-
-        // 3. Page sans navbar (ex : compte en attente) — bouton flottant
-        btn.classList.add("theme-toggle-flottant");
+        // Bouton flottant, fixé en bas à droite (au-dessus du bouton
+        // "back-to-top" du template). Injecté en FIXE pour ne JAMAIS
+        // modifier la mise en page des navbars (flex) ni décaler les
+        // boutons existants comme "Publier une offre".
         document.body.appendChild(btn);
     }
 
