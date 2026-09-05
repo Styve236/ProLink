@@ -1,6 +1,7 @@
 package prolink.com.prolink.repositories;
 
 import prolink.com.prolink.entities.BlogPost;
+import prolink.com.prolink.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -61,4 +62,7 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
 
     // Comptage par période — rapport admin
     long countByDatePublicationBetween(LocalDateTime debut, LocalDateTime fin);
+
+    // Suppression des posts d'un auteur (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByAuteur(User auteur);
 }

@@ -8,9 +8,16 @@ import prolink.com.prolink.entities.User;
 import prolink.com.prolink.enums.RoleUtilisateur;
 import prolink.com.prolink.enums.StatutCompte;
 import prolink.com.prolink.enums.StatutValidation;
+import prolink.com.prolink.repositories.BlogPostRepository;
 import prolink.com.prolink.repositories.CandidatureRepository;
+import prolink.com.prolink.repositories.ChatMessageRepository;
+import prolink.com.prolink.repositories.CommentaireRepository;
 import prolink.com.prolink.repositories.DocumentRepository;
+import prolink.com.prolink.repositories.LinkActionRepository;
 import prolink.com.prolink.repositories.MessageRepository;
+import prolink.com.prolink.repositories.NotificationRepository;
+import prolink.com.prolink.repositories.PasswordResetTokenRepository;
+import prolink.com.prolink.repositories.ReactionRepository;
 import prolink.com.prolink.repositories.UserRepository;
 
 import java.time.LocalDateTime;
@@ -32,6 +39,13 @@ public class AdminService {
     private final DocumentRepository documentRepository;
     private final MessageRepository messageRepository;
     private final CandidatureRepository candidatureRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final ReactionRepository reactionRepository;
+    private final CommentaireRepository commentaireRepository;
+    private final LinkActionRepository linkActionRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final BlogPostRepository blogPostRepository;
+    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
 
@@ -39,12 +53,26 @@ public class AdminService {
                         DocumentRepository documentRepository,
                         MessageRepository messageRepository,
                         CandidatureRepository candidatureRepository,
+                        PasswordResetTokenRepository passwordResetTokenRepository,
+                        ReactionRepository reactionRepository,
+                        CommentaireRepository commentaireRepository,
+                        LinkActionRepository linkActionRepository,
+                        ChatMessageRepository chatMessageRepository,
+                        BlogPostRepository blogPostRepository,
+                        NotificationRepository notificationRepository,
                         NotificationService notificationService,
                         EmailService emailService) {
         this.userRepository = userRepository;
         this.documentRepository = documentRepository;
         this.messageRepository = messageRepository;
         this.candidatureRepository = candidatureRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.reactionRepository = reactionRepository;
+        this.commentaireRepository = commentaireRepository;
+        this.linkActionRepository = linkActionRepository;
+        this.chatMessageRepository = chatMessageRepository;
+        this.blogPostRepository = blogPostRepository;
+        this.notificationRepository = notificationRepository;
         this.notificationService = notificationService;
         this.emailService = emailService;
     }
@@ -130,8 +158,22 @@ public class AdminService {
                     "Impossible de supprimer un administrateur.");
         }
 
+        // Nettoyage de toutes les dépendances pointant vers cet utilisateur
+        // pour éviter les violations de contraintes FK (password_reset_tokens,
+        // candidatures, blog, commentaires, likes, messages, documents, etc.)
+        passwordResetTokenRepository.deleteByUser(user);
+        candidatureRepository.deleteByCandidat(user);
+        reactionRepository.deleteByUtilisateur(user);
+        commentaireRepository.deleteByAuteur(user);
+        linkActionRepository.deleteByDemandeur(user);
+        linkActionRepository.deleteByCible(user);
+        chatMessageRepository.deleteByExpediteur(user);
+        blogPostRepository.deleteByAuteur(user);
         messageRepository.deleteByExpediteur(user);
         messageRepository.deleteByDestinataire(user);
+        notificationRepository.deleteByUtilisateur(user);
+        documentRepository.deleteByUtilisateur(user);
+
         userRepository.delete(user);
     }
 

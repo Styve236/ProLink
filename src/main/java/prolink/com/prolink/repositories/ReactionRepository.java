@@ -18,4 +18,7 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
     Optional<Reaction> findByPostAndUtilisateur(BlogPost post, User utilisateur);
 
     long countByPost(BlogPost post);
+
+    // Suppression des réactions d'un utilisateur (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByUtilisateur(User utilisateur);
 }

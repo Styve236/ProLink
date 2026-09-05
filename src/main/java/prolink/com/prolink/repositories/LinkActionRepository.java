@@ -64,4 +64,8 @@ public interface LinkActionRepository extends JpaRepository<LinkAction, Long> {
 
     // ── Comptage par période — rapport d'activités admin ──
     long countByDateDemandeBetween(LocalDateTime debut, LocalDateTime fin);
+
+    // Suppression des demandes liées à un utilisateur (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByDemandeur(User demandeur);
+    void deleteByCible(User cible);
 }

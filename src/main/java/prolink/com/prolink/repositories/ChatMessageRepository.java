@@ -1,6 +1,7 @@
 package prolink.com.prolink.repositories;
 
 import prolink.com.prolink.entities.ChatMessage;
+import prolink.com.prolink.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     // ── Comptage par période — rapport d'activités admin ──
     long countByHorodatageBetween(LocalDateTime debut, LocalDateTime fin);
+
+    // Suppression des messages de chat d'un utilisateur (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByExpediteur(User expediteur);
 }

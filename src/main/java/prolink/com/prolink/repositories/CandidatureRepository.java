@@ -38,4 +38,7 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     long countByStatutAndDateCandidatureBetween(StatutCandidature statut,
                                                 LocalDateTime debut,
                                                 LocalDateTime fin);
+
+    // Suppression des candidatures d'un candidat (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByCandidat(User candidat);
 }

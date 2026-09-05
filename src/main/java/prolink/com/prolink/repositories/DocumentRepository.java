@@ -24,4 +24,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     long countByStatutValidationAndDateDepotBetween(StatutValidation statut,
                                                     LocalDateTime debut,
                                                     LocalDateTime fin);
+
+    // Suppression des documents d'un utilisateur (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByUtilisateur(User utilisateur);
 }

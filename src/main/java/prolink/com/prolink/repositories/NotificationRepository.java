@@ -19,4 +19,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // ── Comptage par période — rapport d'activités admin ──
     long countByDateCreationBetween(LocalDateTime debut, LocalDateTime fin);
+
+    // Suppression des notifications d'un utilisateur (nettoyage lors de la suppression d'un utilisateur)
+    void deleteByUtilisateur(User utilisateur);
 }
